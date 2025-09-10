@@ -1,5 +1,4 @@
-<h1 style="text-align: center;"> ASE_420_Team_Tetris_Project </h1>
-# Tetris Game
+# ASE_420_Team_Tetris_Project
 
 This repository contains a functional Tetris game with two different versions: **V1.0** and **V2.0**.
 
