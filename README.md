@@ -31,3 +31,7 @@ To run the game, navigate to the version folder you'd like to try (`V1.0` or `V2
 Contributions, suggestions, and improvements are welcome! Feel free to fork the repository or open an issue.
 
 ---
+
+## Schedule
+
+Cleyton: 
