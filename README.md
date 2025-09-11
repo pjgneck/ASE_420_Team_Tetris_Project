@@ -35,4 +35,4 @@ Contributions, suggestions, and improvements are welcome! Feel free to fork the 
 ## Schedule
 
 Cleyton: 
-Denver: 
+Denver: Every Sunday 7am-9am
