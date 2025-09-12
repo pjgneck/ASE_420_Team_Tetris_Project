@@ -34,5 +34,5 @@ Contributions, suggestions, and improvements are welcome! Feel free to fork the 
 
 ## Schedule
 
-Cleyton: M, W 8am-4pm T,R 8am-2:30pm F After 3pm
+Cleyton: M, W 8am-4pm T,R 8am-2:30pm F After 3pm 
 Denver: Every Sunday 7am-9am
