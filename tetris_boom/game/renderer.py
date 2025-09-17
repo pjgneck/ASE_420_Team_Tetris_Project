@@ -1,11 +1,7 @@
+from game.block_data import WHITE, GRAY, BLACK, BLOCK_SIZE
 import pygame
 
-WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
-BLACK = (0, 0, 0)
-BLOCK_SIZE = 20
-
-class TetrisRenderer:
+class TetrisRenderer():
     def __init__(self, screen, game_mode):
         self.screen = screen
         self.game_mode = game_mode
