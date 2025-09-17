@@ -1,3 +1,5 @@
+from game.block import Block
+
 class PieceFactory:
-    def create_piece(self):
-        pass  # Return a new random Block
+    def create_block(self, x=3, y=0):
+        return Block(x, y)

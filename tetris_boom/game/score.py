@@ -2,8 +2,8 @@ class ScoreManager:
     def __init__(self):
         self.score = 0
 
-    def add_points(self, points: int):
-        self.score += points
+    def update(self, lines_cleared):
+        self.score += lines_cleared ** 2
 
-    def should_switch(self) -> bool:
-        return self.score != 0 and self.score % 1000 == 0
+    def get_score(self):
+        return self.score

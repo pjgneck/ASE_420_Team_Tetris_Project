@@ -1,29 +1,37 @@
-from game.modes.base import GameMode
-from game.score import ScoreManager
-from game.board import Board
-from game.input_handler import InputHandler
-from game.renderer import Renderer
-from game.modes.tetris import TetrisMode
+import pygame
+from game.modes.tetris_mode import TetrisMode
+from game.input_handler import TetrisInputHandler
+from game.renderer import TetrisRenderer
+
+SCREEN_WIDTH = 200
+SCREEN_HEIGHT = 400
 
 class GameController:
     def __init__(self):
-        self.score_manager = ScoreManager()
-        self.board = Board()
-        self.input_handler = InputHandler()
-        self.renderer = Renderer()
-        self.current_mode: GameMode = TetrisMode(self.board, self.score_manager)
+        pygame.init()
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption("Tetris")
+        self.clock = pygame.time.Clock()
+
+        # Create the game mode with injected dependencies
+        self.mode = TetrisMode(
+            screen=self.screen,
+            input_handler=TetrisInputHandler,
+            renderer=TetrisRenderer
+        )
 
     def run_game_loop(self):
         running = True
         while running:
-            self.input_handler.process_input()
-            self.current_mode.handle_input()
-            self.current_mode.update()
-            self.current_mode.render(self.renderer)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                result = self.mode.handle_input(event)
+                if result == "quit":
+                    running = False
 
-            if self.score_manager.should_switch():
-                self.switch_mode()
+            self.mode.update()
+            self.mode.render()
+            self.clock.tick(30)
 
-    def switch_mode(self):
-        # placeholder for switching between TetrisMode and BlockBlastMode
-        pass
+        pygame.quit()

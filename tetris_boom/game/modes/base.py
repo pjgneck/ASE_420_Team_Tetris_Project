@@ -2,13 +2,17 @@ from abc import ABC, abstractmethod
 
 class GameMode(ABC):
     @abstractmethod
-    def update(self): pass
+    def update(self):
+        pass
 
     @abstractmethod
-    def handle_input(self): pass
+    def handle_input(self, event):
+        pass
 
     @abstractmethod
-    def render(self, renderer): pass
+    def render(self):
+        pass
 
     @abstractmethod
-    def spawn_piece(self): pass
+    def spawn_piece(self, event):
+        pass
