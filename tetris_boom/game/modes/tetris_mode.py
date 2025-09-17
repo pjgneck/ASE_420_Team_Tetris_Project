@@ -14,13 +14,19 @@ class TetrisMode(GameMode):
         self.input_handler = input_handler(self)
         self.screen = screen
         self.game_over = False
+        self._game_over_processed = False  # To ensure highscore is saved only once
         self.gravity = 1.0  # blocks per second
         self.fall_timer = 0.0
         self.pressing_down = False
 
     def update(self):
         if self.game_over:
-            return
+        # Only call game_over() once
+            if not self._game_over_processed:
+                print("Game over detected - calling score manager once")
+                self.score_manager.game_over()
+                self._game_over_processed = True
+            return  # Don't do anything else while game is over
 
         # Time-based falling
         dt = 1 / 30  # Assuming game loop runs at 30 FPS
