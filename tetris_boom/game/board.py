@@ -4,8 +4,8 @@ class Board:
     def __init__(self, rows=20, cols=10):
         self.rows = rows
         self.cols = cols
-        self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
         self.COLORS = COLORS
+        self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
 
     def is_valid_position(self, block):
         for i in range(4):

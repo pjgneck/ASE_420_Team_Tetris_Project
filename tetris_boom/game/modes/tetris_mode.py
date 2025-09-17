@@ -1,23 +1,22 @@
 import pygame
 from game.board import Board
-from game.piece_factory import PieceFactory
-from game.score import ScoreManager
+from game.block_factory import BlockFactory
+from game.score_manager import ScoreManager
 from game.modes.base import GameMode
 
 class TetrisMode(GameMode):
     def __init__(self, screen, input_handler, renderer):
-        self.screen = screen
-        self.board = Board()
-        self.factory = PieceFactory()
+        self.factory = BlockFactory()
         self.block = self.factory.create_block()
-        self.score = ScoreManager()
+        self.board = Board()
+        self.renderer = renderer(screen, self)
+        self.score_manager = ScoreManager()
+        self.input_handler = input_handler(self)
+        self.screen = screen
         self.game_over = False
         self.gravity = 1.0  # blocks per second
         self.fall_timer = 0.0
         self.pressing_down = False
-        # Injected classes — will create instances below
-        self.input_handler = input_handler(self)
-        self.renderer = renderer(screen, self)
 
     def update(self):
         if self.game_over:
@@ -39,7 +38,7 @@ class TetrisMode(GameMode):
                 self.board.freeze(self.block)
 
                 lines_cleared = self.board.break_lines()
-                self.score.update(lines_cleared)
+                self.score_manager.add_points(lines_cleared)
 
                 self.block = self.factory.create_block()
 
@@ -55,5 +54,5 @@ class TetrisMode(GameMode):
     def render(self):
         self.renderer.render()
 
-    def spawn_piece(self):
+    def spawn_block(self):
         self.block = self.factory.create_block()

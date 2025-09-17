@@ -6,9 +6,9 @@ BLACK = (0, 0, 0)
 BLOCK_SIZE = 20
 
 class TetrisRenderer:
-    def __init__(self, screen, mode):
+    def __init__(self, screen, game_mode):
         self.screen = screen
-        self.mode = mode
+        self.game_mode = game_mode
         self.font = pygame.font.SysFont('Calibri', 20, True, False)
         self.big_font = pygame.font.SysFont('Calibri', 35, True, False)
 
@@ -17,12 +17,12 @@ class TetrisRenderer:
         self.draw_board()
         self.draw_block()
         self.draw_score()
-        if self.mode.game_over:
+        if self.game_mode.game_over:
             self.draw_game_over()
         pygame.display.flip()
 
     def draw_board(self):
-        board = self.mode.board
+        board = self.game_mode.board
         for y in range(board.rows):
             for x in range(board.cols):
                 val = board.grid[y][x]
@@ -40,7 +40,7 @@ class TetrisRenderer:
                 )
 
     def draw_block(self):
-        block = self.mode.block
+        block = self.game_mode.block
         for i in range(4):
             for j in range(4):
                 if i * 4 + j in block.get_image():
@@ -53,7 +53,7 @@ class TetrisRenderer:
                     )
 
     def draw_score(self):
-        text = self.font.render(f"Score: {self.mode.score.get_score()}", True, BLACK)
+        text = self.font.render(f"Score: {self.game_mode.score_manager.get_score()}", True, BLACK)
         self.screen.blit(text, [5, 5])
 
     def draw_game_over(self):

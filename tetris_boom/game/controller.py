@@ -10,11 +10,11 @@ class GameController:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Tetris")
         self.clock = pygame.time.Clock()
+        pygame.display.set_caption("Tetris BOOM!")
 
         # Create the game mode with injected dependencies
-        self.mode = TetrisMode(
+        self.game_mode = TetrisMode(
             screen=self.screen,
             input_handler=TetrisInputHandler,
             renderer=TetrisRenderer
@@ -26,12 +26,15 @@ class GameController:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                result = self.mode.handle_input(event)
+                result = self.game_mode.handle_input(event)
                 if result == "quit":
                     running = False
 
-            self.mode.update()
-            self.mode.render()
+            self.game_mode.update()
+            self.game_mode.render()
             self.clock.tick(30)
 
         pygame.quit()
+
+    def switch_mode(self):
+        pass

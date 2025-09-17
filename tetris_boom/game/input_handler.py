@@ -1,16 +1,16 @@
 import pygame
 
 class TetrisInputHandler:
-    def __init__(self, mode):
-        self.mode = mode
+    def __init__(self, game_mode):
+        self.game_mode = game_mode
 
     def handle(self, event):
-        block = self.mode.block
-        board = self.mode.board
-        factory = self.mode.factory
+        block = self.game_mode.block
+        board = self.game_mode.board
+        factory = self.game_mode.factory
 
         if event.type == pygame.KEYDOWN:
-            if self.mode.game_over and event.key == pygame.K_q:
+            if self.game_mode.game_over and event.key == pygame.K_q:
                 return "quit"
 
             if event.key == pygame.K_LEFT:
@@ -24,7 +24,7 @@ class TetrisInputHandler:
                     block.move(-1, 0)
 
             elif event.key == pygame.K_DOWN:
-                self.mode.pressing_down = True
+                self.game_mode.pressing_down = True
 
             elif event.key == pygame.K_UP:
                 block.rotate()
@@ -37,10 +37,10 @@ class TetrisInputHandler:
                 block.move(0, -1)
                 board.freeze(block)
                 lines = board.break_lines()
-                self.mode.score.update(lines)
-                self.mode.block = factory.create_block()
-                if not board.is_valid_position(self.mode.block):
-                    self.mode.game_over = True
+                self.game_mode.score.update(lines)
+                self.game_mode.block = factory.create_block()
+                if not board.is_valid_position(self.game_mode.block):
+                    self.game_mode.game_over = True
 
         elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
-            self.mode.pressing_down = False
+            self.game_mode.pressing_down = False

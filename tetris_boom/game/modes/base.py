@@ -14,5 +14,5 @@ class GameMode(ABC):
         pass
 
     @abstractmethod
-    def spawn_piece(self, event):
+    def spawn_block(self, event):
         pass
