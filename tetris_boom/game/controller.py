@@ -5,36 +5,53 @@ from game.renderer import TetrisRenderer
 
 SCREEN_WIDTH = 200
 SCREEN_HEIGHT = 400
+FPS = 30  # Defined FPS for clarity
 
 class GameController:
     def __init__(self):
+        """
+        Initializes the game controller, setting up the screen, clock, and game mode.
+        """
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        self.clock = pygame.time.Clock()
-        pygame.display.set_caption("Tetris BOOM!")
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Set up the screen with given dimensions
+        self.clock = pygame.time.Clock()  # Clock for controlling the frame rate
+        pygame.display.set_caption("Tetris BOOM!")  # Set the window title
 
-        # Create the game mode with injected dependencies
+        # Initialize the game mode with required dependencies
         self.game_mode = TetrisMode(
             screen=self.screen,
             input_handler=TetrisInputHandler,
             renderer=TetrisRenderer
         )
 
+
     def run_game_loop(self):
-        running = True
-        while running:
+        """
+        Runs the main game loop, handling events, updating the game state, and rendering.
+        """
+        is_running = True
+
+        while is_running:
+            # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
-                result = self.game_mode.handle_input(event)
-                if result == "quit":
-                    running = False
+                    is_running = False  # Exit the game loop
+                else:
+                    quit_command = self.game_mode.handle_input(event)
+                    if quit_command == "quit":
+                        is_running = False  # Exit if the game mode signals to quit
 
+            # Update the game state and render the scene
             self.game_mode.update()
             self.game_mode.render()
-            self.clock.tick(30)
 
-        pygame.quit()
+            # Control the frame rate
+            self.clock.tick(FPS)
+
+        pygame.quit()  # Cleanly quit pygame when the game loop ends
 
     def switch_mode(self):
+        """
+        Placeholder for switching between game modes (if applicable in future).
+        """
         pass
