@@ -3,8 +3,8 @@ from game.modes.tetris_mode import TetrisMode
 from game.input_handler import TetrisInputHandler
 from game.renderer import TetrisRenderer
 
-SCREEN_WIDTH = 200
-SCREEN_HEIGHT = 400
+SCREEN_WIDTH = 500
+SCREEN_HEIGHT = 500
 FPS = 30  # Defined FPS for clarity
 
 class GameController:

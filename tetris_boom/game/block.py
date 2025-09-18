@@ -1,5 +1,5 @@
 import random
-from game.block_data import FIGURES, COLORS
+from game.block_data import SHAPES, BLOCK_COLORS
 
 class Block:
     def __init__(self, x: int, y: int):
@@ -12,9 +12,9 @@ class Block:
         self.x = x
         self.y = y
 
-        # Choose a random figure type and color (index-based)
-        self.type = random.randrange(len(FIGURES))
-        self.color = random.randint(1, len(COLORS) - 1) # Don't include (0,0,0)
+        # Choose a random shape and color (index-based)
+        self.shape = random.randrange(len(SHAPES))
+        self.color = random.randint(1, len(BLOCK_COLORS) - 1) # 0 is reservered for empty space
 
         self.rotation = 0  # Index of the current rotation state
 
@@ -32,13 +32,13 @@ class Block:
         """
         Rotates the block clockwise.
         """
-        self.rotation = (self.rotation + 1) % len(FIGURES[self.type])
+        self.rotation = (self.rotation + 1) % len(SHAPES[self.shape])
 
     def undo_rotate(self):
         """
         Rotates the block counter-clockwise (undo last rotation).
         """
-        self.rotation = (self.rotation - 1) % len(FIGURES[self.type])
+        self.rotation = (self.rotation - 1) % len(SHAPES[self.shape])
     
     def get_shape(self):
         """
@@ -46,7 +46,7 @@ class Block:
 
         :return: A 2D list representing the block's shape.
         """
-        return FIGURES[self.type][self.rotation]
+        return SHAPES[self.shape][self.rotation]
 
     def get_color(self):
         """
@@ -54,4 +54,4 @@ class Block:
 
         :return: An RGB tuple from the COLORS list.
         """
-        return COLORS[self.color]
+        return BLOCK_COLORS[self.color]

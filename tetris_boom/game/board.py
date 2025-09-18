@@ -1,4 +1,4 @@
-from game.block import COLORS
+from game.block import BLOCK_COLORS
 
 class Board:
     def __init__(self, rows=20, cols=10):
@@ -10,7 +10,7 @@ class Board:
         """
         self.rows = rows
         self.cols = cols
-        self.COLORS = COLORS  # Block colors (imported from game.block)
+        self.BLOCK_COLORS = BLOCK_COLORS  # Block colors (imported from game.block)
         # Initialize the grid with 0s (empty spaces)
         self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
 
