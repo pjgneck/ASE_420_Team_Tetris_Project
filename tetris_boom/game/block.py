@@ -1,5 +1,5 @@
 import random
-from game.block_data import SHAPES, BLOCK_COLORS
+from game.block_data import SHAPES, SHAPE_WEIGHTS, BLOCK_COLORS
 
 class Block:
     def __init__(self, x: int, y: int):
@@ -13,7 +13,7 @@ class Block:
         self.y = y
 
         # Choose a random shape and color (index-based)
-        self.shape = random.randrange(len(SHAPES))
+        self.shape = random.choices(range(len(SHAPES)), weights=SHAPE_WEIGHTS, k=1)[0]
         self.color = random.randint(1, len(BLOCK_COLORS) - 1) # 0 is reservered for empty space
 
         self.rotation = 0  # Index of the current rotation state
