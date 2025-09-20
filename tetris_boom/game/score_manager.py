@@ -8,10 +8,19 @@ class ScoreManager:
 
         :param save_path: The file path to save/load the highscore data.
         """
-        self.highscore = 0  # Highest score ever achieved
+        self.highscore_data = {"name": "", "highscore": 0}  # Highest score ever achieved
         self.score = 0  # Current score of the game session
+        self.player_name = ""  # Name of the player with the highscore
         self.save_path = save_path  # Path to the highscore file
         self._load_highscore()  # Load the highscore from file (if exists)
+
+    def set_player_name(self, name: str):
+        """
+        Sets the player's name.
+
+        :param name: The name of the player.
+        """
+        self.player_name = name
 
     def add_points(self, lines_cleared: int):
         """
@@ -20,8 +29,12 @@ class ScoreManager:
         :param lines_cleared: The number of lines cleared by the player in the current move.
         """
         self.score += lines_cleared ** 2  # Example: 1 line = 1 point, 2 lines = 4 points, etc.
-        if self.score > self.highscore:
-            self.highscore = self.score
+        
+        if self.score > self.highscore_data["highscore"]:
+            self.highscore_data = {
+                "name": self.player_name,
+                "highscore": self.score
+            }
             self._save_highscore()  # Save the new highscore
 
     def get_score(self) -> int:
@@ -38,7 +51,15 @@ class ScoreManager:
 
         :return: The highest score.
         """
-        return self.highscore
+        return self.highscore_data["highscore"]
+
+    def get_highscore_player(self) -> str:
+        """
+        Gets the name of the player who achieved the highest score.
+
+        :return: The name of the highscore player.
+        """
+        return self.highscore_data["name"]
 
     def reset(self):
         """
@@ -56,10 +77,13 @@ class ScoreManager:
             try:
                 with open(self.save_path, "r") as f:
                     data = json.load(f)
-                    self.highscore = data.get("highscore", 0)  # Get highscore, default to 0 if not found
+                    self.highscore_data = {
+                        "name": data.get("name", ""),
+                        "highscore": data.get("highscore", 0)
+                    }
             except (json.JSONDecodeError, IOError) as error:
                 print(f"Error loading highscore: {error}")
-                self.highscore = 0  # Reset to 0 if there's any error
+                self.highscore_data = {"name": "", "highscore": 0}  # Reset to default if there's any error
 
     def _save_highscore(self):
         """
@@ -79,6 +103,6 @@ class ScoreManager:
         # Now save the highscore data
         try:
             with open(self.save_path, "w") as f:
-                json.dump({"highscore": self.highscore}, f)
+                json.dump(self.highscore_data, f)
         except IOError as error:
             print(f"Error saving highscore: {error}")
