@@ -1,60 +1,58 @@
-# ASE_420_Team_Tetris_Project
+---
+marp: true
+theme: default
+paginate: true
+---
 
-This repository contains a functional Tetris game with two different versions: **V1.0** and **V2.0**.  
+# ASE_420_Team_Tetris_Project 🎮
 
-We are currently working on additional features to not only improve gameplay but also bring something special to the table for our Tetris game.
+This repository contains a functional **Tetris game** with two versions:  
+**V1.0** and **V2.0**  
+
+We are expanding the project with new features to improve gameplay and bring something special to our Tetris game.
 
 ---
 
-## Current Status
+## Current Status ✅
 
-The Tetris game is currently in a working state.  
-Two versions of the game are available in the repository, each representing different stages of development.
-
----
-
-## Version 1.0
-
-- **V1.0** is the initial implementation of the Tetris game.  
-- Includes the **core logic** required for the game to run.  
-- **Very limited in functionality** and **not suitable for actual gameplay**.  
-- Serves more as a **proof of concept** or base for further development.  
-
----
-
-## Version 2.0
-
-- **V2.0** is a significant improvement over V1.0.  
-- Includes the **complete functionality** expected of a Tetris game.  
-- **Fully playable** and provides a much better user experience.  
-- Focuses on the **core mechanics** of Tetris while being user-friendly.  
+- The game is **fully functional**  
+- Includes complete **Tetris gameplay**  
+- Features a **High Score System** to track top performances  
 
 ---
 
 ## Upcoming Features ✨
 
-We are actively working on adding the following improvements:
+- 🔄 **Game Switch**  
+  Additional game modes that switch dynamically as you play  
 
-- 🖱️ **Drag & Drop Features** – Enhanced interaction for piece control.  
-- 🏆 **High Score Implementation** – Track and display top player performances.  
-- 🎨 **UI Themes** – Customize the game look with multiple themes.  
-- 👤 **Assigning User Scores** – Individual user profiles with score tracking.  
+- 🖱️ **Drag & Drop Features**  
+  Enhanced interaction for piece control  
 
----
+- 🎨 **UI Themes**  
+  Customize the game look with multiple visual themes  
 
-## Contributions
-
-💡 Contributions, suggestions, and improvements are welcome!  
-Feel free to fork the repository or open an issue.  
+- 👤 **Leaderboard with Profiles**  
+  User accounts with score history and rankings  
 
 ---
 
-## Team Schedule
+## Contributions 🤝
 
-- **Cleyton**:  
-  - Mon & Wed → 8am–4pm  
-  - Tue & Thu → 8am–2:30pm  
-  - Fri → After 3pm  
+💡 Contributions, suggestions, and improvements are always welcome!  
 
-- **Denver**:  
-  - Sunday → 7am–9am  
+- Fork the repository  
+- Open an issue  
+- Submit pull requests  
+
+---
+
+## Team Schedule 🗓️
+
+**Cleyton**  
+- Mon & Wed → 8am–4pm  
+- Tue & Thu → 8am–2:30pm  
+- Fri → After 3pm  
+
+**Denver**  
+- Sunday → 7am–9am  
