@@ -1,8 +1,6 @@
 # ASE_420_Team_Tetris_Project 🎮
 
-This repository contains a functional **Tetris game** with two versions:  
-**V1.0** and **V2.0**  
-
+This repository contains a functional **Tetris game**
 We are expanding the project with new features to improve gameplay and bring something special to our Tetris game.
 
 ---
