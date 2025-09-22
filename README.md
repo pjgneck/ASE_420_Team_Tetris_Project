@@ -1,9 +1,3 @@
----
-marp: true
-theme: default
-paginate: true
----
-
 # ASE_420_Team_Tetris_Project 🎮
 
 This repository contains a functional **Tetris game** with two versions:  
