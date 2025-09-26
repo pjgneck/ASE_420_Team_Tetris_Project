@@ -269,17 +269,18 @@ class BlockBlastRenderer:
 
     def compute_snapped_preview(self, block):
         """
-        Compute the grid position where the block should snap.
-        Returns (grid_x, grid_y).
+        Compute snapped grid coordinates (x, y) for the dragged block.
+        Ensures all filled cells stay on the board, and allows
+        placement flush against any edge.
         """
         mouse_x, mouse_y = pygame.mouse.get_pos()
         board = self.state.board
 
-        # Convert mouse to grid coordinates
-        grid_x = (mouse_x - self.offset_x) // BLOCK_SIZE
-        grid_y = (mouse_y - self.offset_y) // BLOCK_SIZE
+        # Mouse in grid coords (round to nearest cell)
+        grid_x = round((mouse_x - self.offset_x) / BLOCK_SIZE)
+        grid_y = round((mouse_y - self.offset_y) / BLOCK_SIZE)
 
-        # Get block shape cells
+        # Occupied cells in block's local 4×4 grid
         shape = block.get_shape()
         cells = [(k // 4, k % 4) for k in shape]
 
@@ -288,16 +289,19 @@ class BlockBlastRenderer:
         min_i = min(i for i, j in cells)
         max_i = max(i for i, j in cells)
 
-        # Snap block so leftmost cell aligns with mouse
+        # Shift so the cell under the mouse becomes aligned
         grid_x -= min_j
         grid_y -= min_i
 
-        block_width = max_j - min_j + 1
-        # Clamp horizontally
-        grid_x = max(0, min(grid_x, board.cols - block_width))
-
-        # Clamp vertically
-        grid_y = max(0, min(grid_y, board.rows - (max_i - min_i + 1)))
+        # Clamp based on ALL filled cells
+        if grid_x + min_j < 0:
+            grid_x = -min_j
+        if grid_y + min_i < 0:
+            grid_y = -min_i
+        if grid_x + max_j >= board.cols:
+            grid_x = board.cols - 1 - max_j
+        if grid_y + max_i >= board.rows:
+            grid_y = board.rows - 1 - max_i
 
         return grid_x, grid_y
 
