@@ -74,7 +74,8 @@ class GameController:
         :param input_handler_class: The input handler class for the new mode
         :param renderer_class: The renderer class for the new mode
         """
-        self.state.current_block = None
+        if self.state.current_block is None:
+            self.state.current_block = self.state.block_factory.create_block()
 
         self.game_mode = new_mode_class(
             screen=self.screen,

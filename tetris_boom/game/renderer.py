@@ -221,6 +221,7 @@ class BlockBlastRenderer:
         """
         self.screen.fill(WHITE)
         self._draw_game_board()
+        self._draw_preview()
         self._draw_next_pieces()
         self._draw_dragging_block()
         self._draw_score()
@@ -266,6 +267,40 @@ class BlockBlastRenderer:
         for index, block in enumerate(self.state.next_blocks[:3]):
             self.draw_block_at_screen_coords(block, start_x, start_y + index * 100)
 
+    def compute_snapped_preview(self, block):
+        """
+        Compute the grid position where the block should snap.
+        Returns (grid_x, grid_y).
+        """
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        board = self.state.board
+
+        # Convert mouse to grid coordinates
+        grid_x = (mouse_x - self.offset_x) // BLOCK_SIZE
+        grid_y = (mouse_y - self.offset_y) // BLOCK_SIZE
+
+        # Get block shape cells
+        shape = block.get_shape()
+        cells = [(k // 4, k % 4) for k in shape]
+
+        min_j = min(j for i, j in cells)
+        max_j = max(j for i, j in cells)
+        min_i = min(i for i, j in cells)
+        max_i = max(i for i, j in cells)
+
+        # Snap block so leftmost cell aligns with mouse
+        grid_x -= min_j
+        grid_y -= min_i
+
+        block_width = max_j - min_j + 1
+        # Clamp horizontally
+        grid_x = max(0, min(grid_x, board.cols - block_width))
+
+        # Clamp vertically
+        grid_y = max(0, min(grid_y, board.rows - (max_i - min_i + 1)))
+
+        return grid_x, grid_y
+
     def draw_block_at_screen_coords(self, block, screen_x, screen_y):
         """Draw a block at arbitrary screen coordinates (for next blocks / drag-and-drop)."""
         shape = block.get_shape()
@@ -282,13 +317,46 @@ class BlockBlastRenderer:
                     )
 
     def _draw_dragging_block(self):
-        if self.game_mode.input_handler.dragging_block:
-            block = self.game_mode.input_handler.dragging_block
+        handler = self.game_mode.input_handler
+        block = handler.dragging_block
+
+        if block:
+            # Compute snapped preview position
+            preview_x, preview_y = self.compute_snapped_preview(block)
+
+            # Only draw the preview if the block isn't already fully on the board
+            # Check if the current x/y matches snapped x/y
+            if (block.x != preview_x) or (block.y != preview_y):
+                shape = block.get_shape()
+                color = block.get_color()
+
+                for i in range(4):
+                    for j in range(4):
+                        if i * 4 + j in shape:
+                            pygame.draw.rect(
+                                self.screen,
+                                color,
+                                [
+                                    self.offset_x + (preview_x + j) * BLOCK_SIZE + 1,
+                                    self.offset_y + (preview_y + i) * BLOCK_SIZE + 1,
+                                    BLOCK_SIZE - 2,
+                                    BLOCK_SIZE - 2
+                                ]
+                            )
+
+
+    def _draw_preview(self):
+        block = self.game_mode.input_handler.dragging_block
+        if block:
+            grid_x, grid_y = self.compute_snapped_preview(block)
+
+            # Convert to screen coordinates
+            screen_x = self.offset_x + grid_x * BLOCK_SIZE
+            screen_y = self.offset_y + grid_y * BLOCK_SIZE
+
+            # Draw the preview block
             shape = block.get_shape()
             color = block.get_color()
-            screen_x = getattr(block, 'screen_x', self.offset_x + block.x * BLOCK_SIZE)
-            screen_y = getattr(block, 'screen_y', self.offset_y + block.y * BLOCK_SIZE)
-            
             for i in range(4):
                 for j in range(4):
                     if i * 4 + j in shape:
