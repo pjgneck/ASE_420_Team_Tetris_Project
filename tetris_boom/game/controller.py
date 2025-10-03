@@ -26,6 +26,8 @@ class GameController:
 
         self.state = GameState(board=board, block_factory=block_factory)  # Shared game state instance
 
+        self.last_score_checkpoint = 0
+
         # Initialize the game mode with required dependencies
         self.game_mode = TetrisMode(
             screen=self.screen,
@@ -36,36 +38,35 @@ class GameController:
 
 
     def run_game_loop(self):
-        """
-        Runs the main game loop, handling events, updating the game state, and rendering.
-        """
         is_running = True
 
         while is_running:
             # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    is_running = False  # Exit the game loop
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_TAB:
-                        if isinstance(self.game_mode, TetrisMode):
-                            self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer)
-                        else:
-                            self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer)
-                        continue
-                
-                quit_command = self.game_mode.handle_input(event)
-                if quit_command == "quit":
-                    is_running = False  # Exit if the game mode signals to quit
+                    is_running = False
+                else:
+                    quit_command = self.game_mode.handle_input(event)
+                    if quit_command == "quit":
+                        is_running = False  
 
-            # Update the game state and render the scene
+            # Update the game state
             self.game_mode.update()
-            self.game_mode.render()
 
-            # Control the frame rate
+            # ✅ Check if score reached next multiple of 5
+            current_score = self.state.score_manager.get_score()
+            if current_score // 5 > self.last_score_checkpoint:
+                self.last_score_checkpoint = current_score // 5
+                if isinstance(self.game_mode, TetrisMode):
+                    self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer)
+                else:
+                    self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer)
+
+            # Render
+            self.game_mode.render()
             self.clock.tick(FPS)
 
-        pygame.quit()  # Cleanly quit pygame when the game loop ends
+        pygame.quit()
 
     def switch_mode(self, new_mode_class, input_handler_class, renderer_class):
         """
