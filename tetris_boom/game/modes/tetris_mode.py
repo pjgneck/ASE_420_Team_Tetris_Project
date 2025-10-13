@@ -5,76 +5,68 @@ from game.score_manager import ScoreManager
 from game.modes.base import GameMode
 
 class TetrisMode(GameMode):
-    def __init__(self, screen: pygame.Surface, input_handler, renderer):
+    def __init__(self, screen: pygame.Surface, input_handler, renderer, state):
         """
-        Initializes the Tetris game mode with the necessary components.
-        
-        :param screen: The pygame surface to render the game.
-        :param input_handler: The input handler instance for managing player input.
-        :param renderer: The renderer class responsible for drawing the game.
+        :param state: Shared GameState instance containing board, score, block pool, etc.
         """
-        # Initialize game components
-        self.factory = BlockFactory()  # Factory for creating new Tetriminos
-        self.block = self.factory.create_block()  # Initial block
-        self.board = Board()  # The game board (where blocks land)
-        self.score_manager = ScoreManager()  # Manages the score
-        self.input_handler = input_handler(self)  # Handles user input
-        self.renderer = renderer(screen, self)  # Renders the game state
-        self.screen = screen  # The screen to render to
-        self.game_over = False  # Flag indicating whether the game is over
-        self.gravity = 1.5  # The gravity value controls block fall speed
-        self.fall_timer = 0.0  # Timer to control block falling
-        self.pressing_down = False  # Flag to check if down key is being pressed for fast dropping
+        self.state = state  # Shared game state
+        self.input_handler = input_handler(self)
+        self.renderer = renderer(screen, self)
+        self.screen = screen
+        self.game_over = False
+        self.gravity = 1.5
+        self.fall_timer = 0.0
+        self.pressing_down = False
 
     def update(self):
-        """
-        Updates the game state. Handles block falling, collision, line clearing, and game over logic.
-        """
         if self.game_over:
             return
 
-        # Time-based falling: calculate how much time has passed (assuming 30 FPS)
-        dt = 1 / 30  # Time delta (seconds per frame)
+        dt = 1 / 30  # time per frame
         self.fall_timer += dt
 
-        # Calculate the drop interval based on gravity
-        drop_interval = 1.0 / self.gravity
+        # Drop faster if "down" is pressed
+        speed_multiplier = 5 if getattr(self, "pressing_down", False) else 1
+        drop_interval = 1.0 / (self.gravity * speed_multiplier)
 
-        if self.fall_timer >= drop_interval or self.pressing_down:
-            self._drop_block()  # Move the block down
+        if self.fall_timer >= drop_interval:
+            self.fall_timer = 0.0
 
-            # Check if the block is in a valid position
-            if not self.board.is_valid_position(self.block):
-                self._lock_block()  # Lock the block in place
+            # Move block down
+            self.state.current_block.move(0, 1)
 
-            self.fall_timer = 0.0  # Reset fall timer after move
+            # If block is now in an invalid position, revert and lock
+            if not self.state.board.is_valid_position(self.state.current_block):
+                self.state.current_block.move(0, -1)  # back to last valid spot
+                self._lock_block()
+
+
+
 
     def _drop_block(self):
         """
         Moves the block down and checks for collision.
         """
-        self.block.move(0, 1)
+        self.state.current_block.move(0, 1)
 
     def _lock_block(self):
         """
         Locks the block in place and clears any full lines.
         """
-        # Revert block position and freeze it
-        self.block.move(0, -1)
-        self.board.freeze(self.block)
+        self.state.board.freeze(self.state.current_block)
 
-        # Clear lines and update the score
-        lines_cleared = self.board.break_lines()
-        self.score_manager.add_points(lines_cleared)
+        # Clear lines & update score
+        lines_cleared = self.state.board.break_lines()
+        self.state.score_manager.add_points(lines_cleared)
 
-        # Create a new block
+        # Spawn new block
         self.spawn_block()
 
-        # Check if the game is over (can't spawn new block)
-        if not self.board.is_valid_position(self.block):
+        # Check game over
+        if not self.state.board.is_valid_position(self.state.current_block):
             self.game_over = True
 
-    def handle_input(self, event: pygame.event.Event) -> str:
+    def handle_input(self, event):
         """
         Handles player input events (key presses).
 
@@ -93,4 +85,4 @@ class TetrisMode(GameMode):
         """
         Spawns a new block by creating it via the factory.
         """
-        self.block = self.factory.create_block()
+        self.state.current_block = self.state.block_factory.create_block()
