@@ -18,12 +18,13 @@
 
 ---
 
+## 🏆 High Score Implementation 
 - Added a **tracking system** for player scores  
 - Foundation for future **leaderboards**  
 
 ---
 
-## 🧹 Clean Base Tetris Game (Denver Hogan)
+## 🧹 Clean Base Tetris Game 
 - Improved **modularity and structure**  
 - Prepared codebase for **upcoming features**  
 
