@@ -1,64 +1,205 @@
 import pygame
+from game.block_data import BLOCK_SIZE
 
 class TetrisInputHandler:
-    def __init__(self, game_mode):
+    def __init__(self, tetris_mode):
         """
-        Initializes the input handler for the game.
+        Input handler for TetrisMode.
 
-        :param game_mode: The game mode instance containing the game state
+        :param tetris_mode: The TetrisMode instance (needed for pressing_down and game_over)
         """
-        self.game_mode = game_mode
+        self.tetris_mode = tetris_mode  # Reference to the mode
+        self.state = tetris_mode.state   # Reference to shared game state
 
     def handle(self, event):
         """
-        Handles key events for player input (move, rotate, drop, etc.).
-
-        :param event: The pygame event that is processed
+        Handles key events: move, rotate, soft/hard drop, quit.
         """
-        current_block = self.game_mode.block  # The current falling block
-        game_board = self.game_mode.board  # The game board
-        block_factory = self.game_mode.factory  # Block factory to create new blocks
+        current_block = self.state.current_block
+        board = self.state.board
+        factory = self.state.block_factory
 
         if event.type == pygame.KEYDOWN:
-            if self.game_mode.game_over and event.key == pygame.K_q:
-                return "quit"  # Quit the game if game over and 'Q' is pressed
+            # Quit game if game over and Q is pressed
+            if self.tetris_mode.game_over and event.key == pygame.K_q:
+                return "quit"
 
-            # Handle left movement
+            # Left
             if event.key == pygame.K_LEFT:
                 current_block.move(-1, 0)
-                if not game_board.is_valid_position(current_block):
-                    current_block.move(1, 0)  # Undo move if invalid position
+                if not board.is_valid_position(current_block):
+                    current_block.move(1, 0)
 
-            # Handle right movement
+            # Right
             elif event.key == pygame.K_RIGHT:
                 current_block.move(1, 0)
-                if not game_board.is_valid_position(current_block):
-                    current_block.move(-1, 0)  # Undo move if invalid position
+                if not board.is_valid_position(current_block):
+                    current_block.move(-1, 0)
 
-            # Handle down movement (start fast dropping)
+            # Start soft drop
             elif event.key == pygame.K_DOWN:
-                self.game_mode.pressing_down = True
+                self.tetris_mode.pressing_down = True
 
-            # Handle rotation
+            # Rotate
             elif event.key == pygame.K_UP:
                 current_block.rotate()
-                if not game_board.is_valid_position(current_block):
-                    current_block.undo_rotate()  # Undo rotation if invalid position
+                if not board.is_valid_position(current_block):
+                    current_block.undo_rotate()
 
-            # Handle hard drop (immediately place the block at the lowest valid position)
+            # Hard drop
             elif event.key == pygame.K_SPACE:
-                while game_board.is_valid_position(current_block):
-                    current_block.move(0, 1)  # Move block down until it can't move
-                current_block.move(0, -1)  # Undo the last move
-                game_board.freeze(current_block)  # Freeze the block in place
+                while board.is_valid_position(current_block):
+                    current_block.move(0, 1)
+                current_block.move(0, -1)
+                board.freeze(current_block)
 
-                lines_cleared = game_board.break_lines()  # Clear full lines
-                self.game_mode.score_manager.add_points(lines_cleared)  # Update score based on lines cleared
-                self.game_mode.block = block_factory.create_block()  # Create a new block
+                # Clear lines and update score
+                lines_cleared = board.break_lines()
+                self.state.score_manager.add_points(lines_cleared)
 
-                # If the new block can't be placed, the game is over
-                if not game_board.is_valid_position(self.game_mode.block):
-                    self.game_mode.game_over = True
+                # Spawn new block
+                self.state.current_block = factory.create_block()
 
-        elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
-            self.game_mode.pressing_down = False  # Stop fast dropping when the down key is released
+                # Check for game over
+                if not board.is_valid_position(self.state.current_block):
+                    self.tetris_mode.game_over = True
+
+        elif event.type == pygame.KEYUP:
+            # Stop soft drop
+            if event.key == pygame.K_DOWN:
+                self.tetris_mode.pressing_down = False
+
+class BlockBlastInputHandler:
+    def __init__(self, blockblast_mode):
+        self.blockblast_mode = blockblast_mode
+        self.state = blockblast_mode.state
+        self.dragging_block = None
+        self.drag_offset = (0, 0)
+        self.original_pos = (0, 0)
+        self.preview_pos = None
+
+    def handle(self, event):
+        board = self.state.board
+        renderer = self.blockblast_mode.renderer
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for idx, block in enumerate(self.state.next_blocks[:3]):
+                start_x = renderer.offset_x + board.cols * BLOCK_SIZE + 50
+                start_y = renderer.offset_y + idx * 100
+                shape = block.get_shape()
+                cells = [(k // 4, k % 4) for k in shape]
+
+                # Compute bounding box of the block
+                min_i = min(i for i, j in cells)
+                min_j = min(j for i, j in cells)
+                max_i = max(i for i, j in cells)
+                max_j = max(j for i, j in cells)
+
+                block_rect = pygame.Rect(
+                    start_x + min_j * BLOCK_SIZE,
+                    start_y + min_i * BLOCK_SIZE,
+                    (max_j - min_j + 1) * BLOCK_SIZE,
+                    (max_i - min_i + 1) * BLOCK_SIZE
+                )
+
+                if block_rect.collidepoint(event.pos):
+                    self.dragging_block = block
+                    # **Compute offset from cursor to top-left of the block bounding box**
+                    self.drag_offset = (block_rect.x - event.pos[0], block_rect.y - event.pos[1])
+                    self.original_pos = (block.x, block.y)
+                    # Set initial on-screen coordinates to exactly where the cursor clicked
+                    block.screen_x = event.pos[0] + self.drag_offset[0]
+                    block.screen_y = event.pos[1] + self.drag_offset[1]
+                    self.preview_pos = None
+                    break
+
+
+        # Inside the handle() method
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging_block:
+                # Move screen position with mouse
+                self.dragging_block.screen_x = event.pos[0] + self.drag_offset[0]
+                self.dragging_block.screen_y = event.pos[1] + self.drag_offset[1]
+
+                # Update preview
+                grid_x = (self.dragging_block.screen_x - renderer.offset_x) // BLOCK_SIZE
+                grid_y = (self.dragging_block.screen_y - renderer.offset_y) // BLOCK_SIZE
+                preview_block = self.dragging_block.copy()  # create a temporary copy
+                preview_block.x = grid_x
+                preview_block.y = grid_y
+                if board.is_valid_position(preview_block):
+                    self.preview_pos = (grid_x, grid_y)
+                else:
+                    self.preview_pos = None
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if self.dragging_block:
+                renderer = self.blockblast_mode.renderer
+
+                # Use the snapped preview directly
+                grid_x, grid_y = renderer.compute_snapped_preview(self.dragging_block)
+                self.dragging_block.x = grid_x
+                self.dragging_block.y = grid_y
+
+                board = self.state.board
+                if board.is_valid_position(self.dragging_block):
+                    board.freeze(self.dragging_block)
+                    lines_cleared = board.break_lines()
+                    self.state.score_manager.add_points(lines_cleared)
+
+                    # Remove from next blocks and refill
+                    self.state.next_blocks.remove(self.dragging_block)
+                    self.state.next_blocks.append(self.state.block_factory.create_block())
+                else:
+                    # Reset to original off-board position
+                    self.dragging_block.x, self.dragging_block.y = self.original_pos
+
+                self.dragging_block = None
+
+    def get_preview_position(self):
+        """
+        Returns the grid coordinates (x, y) where the dragging block would snap if released.
+        """
+        if not self.dragging_block:
+            return None
+
+        renderer = self.blockblast_mode.renderer
+        board = self.state.board
+
+        # Center of dragging block
+        center_x = self.dragging_block.screen_x + BLOCK_SIZE // 2
+        center_y = self.dragging_block.screen_y + BLOCK_SIZE // 2
+
+        grid_x = (center_x - renderer.offset_x) // BLOCK_SIZE
+        grid_y = (center_y - renderer.offset_y) // BLOCK_SIZE
+
+        # Clamp to board bounds
+        grid_x = max(0, min(board.cols - 1, grid_x))
+        grid_y = max(0, min(board.rows - 1, grid_y))
+
+        return grid_x, grid_y
+    
+    def update_preview(self):
+        if not self.dragging_block:
+            self.preview_pos = None
+            return
+
+        renderer = self.blockblast_mode.renderer
+        board = self.state.board
+        shape_cells = [(k // 4, k % 4) for k in self.dragging_block.get_shape()]
+        min_i = min(i for i, j in shape_cells)
+        min_j = min(j for i, j in shape_cells)
+
+        # Compute top-left board cell based on current mouse + offset
+        grid_x = (self.dragging_block.screen_x - renderer.offset_x) // BLOCK_SIZE - min_j
+        grid_y = (self.dragging_block.screen_y - renderer.offset_y) // BLOCK_SIZE - min_i
+
+        # Clamp to board bounds
+        grid_x = max(0, min(board.cols - 1, grid_x))
+        grid_y = max(0, min(board.rows - 1, grid_y))
+
+        # Move down until it collides or reaches bottom
+        while board.is_valid_position(self.dragging_block, x=grid_x, y=grid_y + 1):
+            grid_y += 1
+
+        self.preview_pos = (grid_x, grid_y)

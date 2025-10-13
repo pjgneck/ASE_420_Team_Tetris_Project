@@ -55,3 +55,13 @@ class Block:
         :return: An RGB tuple from the COLORS list.
         """
         return BLOCK_COLORS[self.color]
+
+    def copy(self):
+        new_block = Block(self.shape, self.color)  # adjust constructor to match your Block
+        new_block.x = self.x
+        new_block.y = self.y
+        # copy any other attributes like rotation, screen_x/y
+        new_block.rotation = getattr(self, 'rotation', 0)
+        new_block.screen_x = getattr(self, 'screen_x', 0)
+        new_block.screen_y = getattr(self, 'screen_y', 0)
+        return new_block

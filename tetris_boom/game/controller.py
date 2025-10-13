@@ -1,7 +1,11 @@
 import pygame
 from game.modes.tetris_mode import TetrisMode
-from game.input_handler import TetrisInputHandler
-from game.renderer import TetrisRenderer
+from game.modes.blockblast_mode import BlockBlastMode
+from game.input_handler import TetrisInputHandler, BlockBlastInputHandler
+from game.renderer import TetrisRenderer, BlockBlastRenderer
+from game.gamestate import GameState
+from game.board import Board
+from game.block_factory import BlockFactory
 
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
@@ -17,41 +21,66 @@ class GameController:
         self.clock = pygame.time.Clock()  # Clock for controlling the frame rate
         pygame.display.set_caption("Tetris BOOM!")  # Set the window title
 
+        board = Board()
+        block_factory = BlockFactory()
+
+        self.state = GameState(board=board, block_factory=block_factory)  # Shared game state instance
+
+        self.last_score_checkpoint = 0
+
         # Initialize the game mode with required dependencies
         self.game_mode = TetrisMode(
             screen=self.screen,
             input_handler=TetrisInputHandler,
-            renderer=TetrisRenderer
+            renderer=TetrisRenderer,
+            state=self.state
         )
 
 
     def run_game_loop(self):
-        """
-        Runs the main game loop, handling events, updating the game state, and rendering.
-        """
         is_running = True
 
         while is_running:
             # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    is_running = False  # Exit the game loop
+                    is_running = False
                 else:
                     quit_command = self.game_mode.handle_input(event)
                     if quit_command == "quit":
-                        is_running = False  # Exit if the game mode signals to quit
+                        is_running = False  
 
-            # Update the game state and render the scene
+            # Update the game state
             self.game_mode.update()
-            self.game_mode.render()
 
-            # Control the frame rate
+            # ✅ Check if score reached next multiple of 5
+            current_score = self.state.score_manager.get_score()
+            if current_score // 5 > self.last_score_checkpoint:
+                self.last_score_checkpoint = current_score // 5
+                if isinstance(self.game_mode, TetrisMode):
+                    self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer)
+                else:
+                    self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer)
+
+            # Render
+            self.game_mode.render()
             self.clock.tick(FPS)
 
-        pygame.quit()  # Cleanly quit pygame when the game loop ends
+        pygame.quit()
 
-    def switch_mode(self):
+    def switch_mode(self, new_mode_class, input_handler_class, renderer_class):
         """
         Placeholder for switching between game modes (if applicable in future).
+        :param new_mode_class: The class of the mode to switch to (TetrisMode or BlockBlastMode)
+        :param input_handler_class: The input handler class for the new mode
+        :param renderer_class: The renderer class for the new mode
         """
-        pass
+        if self.state.current_block is None:
+            self.state.current_block = self.state.block_factory.create_block()
+
+        self.game_mode = new_mode_class(
+            screen=self.screen,
+            input_handler=input_handler_class,
+            renderer=renderer_class,
+            state=self.state
+        )
