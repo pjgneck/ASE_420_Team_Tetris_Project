@@ -1,7 +1,4 @@
 import pygame
-from game.board import Board
-from game.block_factory import BlockFactory
-from game.score_manager import ScoreManager
 from game.modes.base import GameMode
 
 class TetrisMode(GameMode):
@@ -39,9 +36,6 @@ class TetrisMode(GameMode):
             if not self.state.board.is_valid_position(self.state.current_block):
                 self.state.current_block.move(0, -1)  # back to last valid spot
                 self._lock_block()
-
-
-
 
     def _drop_block(self):
         """
