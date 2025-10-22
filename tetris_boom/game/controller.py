@@ -1,8 +1,10 @@
 import pygame
 from game.modes.tetris_mode import TetrisMode
 from game.modes.blockblast_mode import BlockBlastMode
-from game.input_handler import TetrisInputHandler, BlockBlastInputHandler
-from game.renderer import TetrisRenderer, BlockBlastRenderer
+from game.tetris_input_handler import TetrisInputHandler
+from game.block_blast_input_handler import BlockBlastInputHandler
+from game.tetris_renderer import TetrisRenderer
+from game.block_blast_renderer import BlockBlastRenderer
 from game.gamestate import GameState
 from game.board import Board
 from game.block_factory import BlockFactory
