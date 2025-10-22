@@ -1,4 +1,5 @@
 import pygame
+import game.input_overlay as Overlay
 from game.modes.tetris_mode import TetrisMode
 from game.modes.blockblast_mode import BlockBlastMode
 from game.tetris_input_handler import TetrisInputHandler
@@ -38,6 +39,10 @@ class GameController:
             state=self.state
         )
 
+        Overlay.get_player_name(
+            screen=self.screen,
+            renderer=TetrisRenderer(self.screen, self.game_mode)
+        )
 
     def run_game_loop(self):
         is_running = True
@@ -55,7 +60,7 @@ class GameController:
             # Update the game state
             self.game_mode.update()
 
-            # ✅ Check if score reached next multiple of 5
+            # Check if score reached next multiple of 5
             current_score = self.state.score_manager.get_score()
             if current_score // 5 > self.last_score_checkpoint:
                 self.last_score_checkpoint = current_score // 5
