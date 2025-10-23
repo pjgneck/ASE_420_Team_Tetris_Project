@@ -1,44 +1,28 @@
 import pygame
-from game.globals import get_player_name
-from game.block_data import WHITE, GRAY, BLACK, ORANGE, YELLOW, BLOCK_SIZE
 
-class TetrisRenderer:
+from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW
+
+class BaseRenderer:
     def __init__(self, screen, game_mode):
         self.screen = screen
         self.game_mode = game_mode
-        self.state = self.game_mode.state  # Shared GameState
+        self.state = game_mode.state
+        self.board = self.state.board
 
-        # Precompute offsets
-        board = self.state.board
-        self.offset_x = (screen.get_width() - board.cols * BLOCK_SIZE) // 2
-        self.offset_y = (screen.get_height() - board.rows * BLOCK_SIZE) // 2
+        self.offset_x = (screen.get_width() - self.board.cols * BLOCK_SIZE) // 2
+        self.offset_y = (screen.get_height() - self.board.rows * BLOCK_SIZE) // 2
 
-        # Set player name
-        self.player_name = get_player_name()
-        self.state.score_manager.player_name = self.player_name
-
-        # Fonts
-        self.font = pygame.font.SysFont('Calibri', 20, True, False)
-        self.large_font = pygame.font.SysFont('Calibri', 35, True, False)
-
-    def render(self):
-        self.screen.fill(WHITE)
-        self._draw_game_board()
-        self._draw_current_block()
-        self._draw_score()
-
-        if self.game_mode.game_over:
-            self._draw_game_over_message()
-
-        pygame.display.flip()
+        self.font = pygame.font.SysFont('Calibri', 20, True)
+        self.large_font = pygame.font.SysFont('Calibri', 35, True)
 
     def _draw_game_board(self):
+        """
+        Draws the board grid and frozen blocks (no falling block)
+        """
         board = self.state.board
-
         for row in range(board.rows):
             for col in range(board.cols):
                 block_value = board.grid[row][col]
-
                 if block_value > 0:
                     pygame.draw.rect(
                         self.screen,
@@ -50,7 +34,6 @@ class TetrisRenderer:
                             BLOCK_SIZE - 2
                         ]
                     )
-
                 # Draw grid
                 pygame.draw.rect(
                     self.screen,
@@ -63,36 +46,11 @@ class TetrisRenderer:
                     ],
                     1
                 )
-
-    def _draw_current_block(self):
-        """
-        Draws the current falling block at its position on the board.
-        Works with flat-index SHAPES (0-15 for 4x4 grid or larger for bigger shapes).
-        """
-        current_block = self.state.current_block
-        shape_indices = current_block.get_shape()  # e.g. [1, 5, 9, 13]
-
-        for idx in shape_indices:
-            # Compute row and column inside the block's local grid
-            r = idx // 4  # each shape is at most 4 columns wide in the SHAPES definition
-            c = idx % 4
-
-            # Compute actual position on the board
-            x = current_block.x + c
-            y = current_block.y + r
-
-            pygame.draw.rect(
-                self.screen,
-                current_block.get_color(),
-                [
-                    self.offset_x + x * BLOCK_SIZE + 1,
-                    self.offset_y + y * BLOCK_SIZE + 1,
-                    BLOCK_SIZE - 2,
-                    BLOCK_SIZE - 2
-                ]
-            )
-
+    
     def _draw_score(self):
+        """
+        Draw score and high score
+        """
         score_manager = self.state.score_manager
         score = score_manager.get_score()
         high_score = score_manager.get_highscore()
@@ -105,6 +63,9 @@ class TetrisRenderer:
         self.screen.blit(high_score_text, [10, 35])
 
     def _draw_game_over_message(self):
+        """
+        Draw "Game Over" message
+        """
         center_x = self.screen.get_width() // 2
         score_manager = self.state.score_manager
         current_score = score_manager.get_score()
