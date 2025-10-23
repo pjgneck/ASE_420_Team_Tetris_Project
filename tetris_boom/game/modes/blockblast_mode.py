@@ -1,5 +1,5 @@
 import pygame
-from game.modes.base import GameMode
+from game.modes.base_mode import GameMode
 
 class BlockBlastMode(GameMode):
     def __init__(self, screen, input_handler, renderer, state):
@@ -26,11 +26,10 @@ class BlockBlastMode(GameMode):
         Update game logic.
         For BlockBlast, blocks don't fall automatically. Only handle dragging.
         """
-        if self.game_over:
-            return
-
-        # Optional: could add timer-based effects or scoring logic here
-        pass
+        self.game_over = not any(
+            self.state.board.has_space_for_block(block.copy())
+            for block in self.state.next_blocks
+        )
 
     def handle_input(self, event):
         """
