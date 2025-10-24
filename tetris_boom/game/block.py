@@ -1,5 +1,5 @@
 import random
-from game.block_data import SHAPES, SHAPE_WEIGHTS, BLOCK_COLORS
+from game.data import SHAPES, SHAPE_WEIGHTS, BLOCK_COLORS
 
 class Block:
     def __init__(self, x: int, y: int):
@@ -28,11 +28,12 @@ class Block:
         self.x += dx
         self.y += dy
 
-    def rotate(self):
+    def rotate(self, times=1):
         """
         Rotates the block clockwise.
         """
-        self.rotation = (self.rotation + 1) % len(SHAPES[self.shape])
+        self.rotation = (self.rotation + times) % len(SHAPES[self.shape])
+
 
     def undo_rotate(self):
         """
@@ -57,11 +58,10 @@ class Block:
         return BLOCK_COLORS[self.color]
 
     def copy(self):
-        new_block = Block(self.shape, self.color)  # adjust constructor to match your Block
-        new_block.x = self.x
-        new_block.y = self.y
-        # copy any other attributes like rotation, screen_x/y
-        new_block.rotation = getattr(self, 'rotation', 0)
+        new_block = Block(self.x, self.y)
+        new_block.shape = self.shape
+        new_block.color = self.color
+        new_block.rotation = self.rotation
         new_block.screen_x = getattr(self, 'screen_x', 0)
         new_block.screen_y = getattr(self, 'screen_y', 0)
         return new_block

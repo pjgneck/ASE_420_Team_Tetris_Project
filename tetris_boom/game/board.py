@@ -67,3 +67,15 @@ class Board:
 
         self.grid = new_grid  # Update the board's grid
         return lines_cleared  # Return the number of cleared lines
+    
+    def has_space_for_block(self, block):
+        """
+        Checks if the given block can be placed anywhere on the board.
+        """
+        for y in range(self.rows):
+            for x in range(self.cols):
+                block.x = x
+                block.y = y
+                if self.is_valid_position(block):
+                    return True
+        return False

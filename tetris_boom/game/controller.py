@@ -2,10 +2,10 @@ import pygame
 import game.input_overlay as Overlay
 from game.modes.tetris_mode import TetrisMode
 from game.modes.blockblast_mode import BlockBlastMode
-from game.tetris_input_handler import TetrisInputHandler
-from game.block_blast_input_handler import BlockBlastInputHandler
-from game.tetris_renderer import TetrisRenderer
-from game.block_blast_renderer import BlockBlastRenderer
+from game.input_handlers.tetris_input_handler import TetrisInputHandler
+from game.input_handlers.blockblast_input_handler import BlockBlastInputHandler
+from game.renderers.tetris_renderer import TetrisRenderer
+from game.renderers.blockblast_renderer import BlockBlastRenderer
 from game.gamestate import GameState
 from game.board import Board
 from game.block_factory import BlockFactory

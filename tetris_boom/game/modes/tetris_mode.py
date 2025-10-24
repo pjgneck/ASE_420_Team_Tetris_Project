@@ -1,5 +1,5 @@
 import pygame
-from game.modes.base import GameMode
+from game.modes.base_mode import GameMode
 
 class TetrisMode(GameMode):
     def __init__(self, screen: pygame.Surface, input_handler, renderer, state):

@@ -1,5 +1,5 @@
 import pygame
-from game.block_data import GRAY
+from game.data import GRAY
 from game.globals import set_player_name
 
 def get_player_name(screen, renderer):

@@ -1,25 +1,10 @@
 import pygame
-from game.block_data import WHITE, GRAY, BLACK, ORANGE, BLOCK_SIZE
+from game.renderers.base_renderer import BaseRenderer
+from game.data import WHITE, BLOCK_SIZE
 
-class BlockBlastRenderer:
+class BlockBlastRenderer(BaseRenderer):
     def __init__(self, screen, game_mode):
-        """
-        Renderer for BlockBlastMode
-        :param screen: Pygame display surface
-        :param game_mode: BlockBlastMode instance
-        """
-        self.screen = screen
-        self.game_mode = game_mode
-        self.state = game_mode.state  # shared GameState
-
-        # Board offsets (same as Tetris)
-        board = self.state.board
-        self.offset_x = (screen.get_width() - board.cols * BLOCK_SIZE) // 2
-        self.offset_y = (screen.get_height() - board.rows * BLOCK_SIZE) // 2
-
-        # Fonts
-        self.font = pygame.font.SysFont('Calibri', 20, True)
-        self.large_font = pygame.font.SysFont('Calibri', 35, True)
+        super().__init__(screen, game_mode)
 
     def render(self):
         """
@@ -34,38 +19,6 @@ class BlockBlastRenderer:
         if self.game_mode.game_over:
             self._draw_game_over_message()
         pygame.display.flip()
-
-    def _draw_game_board(self):
-        """
-        Draws the board grid and frozen blocks (no falling block)
-        """
-        board = self.state.board
-        for row in range(board.rows):
-            for col in range(board.cols):
-                block_value = board.grid[row][col]
-                if block_value > 0:
-                    pygame.draw.rect(
-                        self.screen,
-                        board.BLOCK_COLORS[block_value],
-                        [
-                            self.offset_x + col * BLOCK_SIZE + 1,
-                            self.offset_y + row * BLOCK_SIZE + 1,
-                            BLOCK_SIZE - 2,
-                            BLOCK_SIZE - 2
-                        ]
-                    )
-                # Draw grid
-                pygame.draw.rect(
-                    self.screen,
-                    GRAY,
-                    [
-                        self.offset_x + col * BLOCK_SIZE,
-                        self.offset_y + row * BLOCK_SIZE,
-                        BLOCK_SIZE,
-                        BLOCK_SIZE
-                    ],
-                    1
-                )
 
     def _draw_next_pieces(self):
         start_x = self.offset_x + self.state.board.cols * BLOCK_SIZE + 50
@@ -179,24 +132,3 @@ class BlockBlastRenderer:
                                 BLOCK_SIZE - 2
                             ]
                         )
-
-    def _draw_score(self):
-        """
-        Draw score and high score
-        """
-        score = self.state.score_manager.get_score()
-        high_score = self.state.score_manager.get_highscore()
-        high_score_player = self.state.score_manager.get_highscore_player()
-
-        score_text = self.font.render(f"Score: {score}", True, BLACK)
-        self.screen.blit(score_text, [10, 10])
-        high_score_text = self.font.render(f"High Score: {high_score_player} - {high_score}", True, BLACK)
-        self.screen.blit(high_score_text, [10, 35])
-
-    def _draw_game_over_message(self):
-        """
-        Draw "Game Over" if applicable
-        """
-        center_x = self.screen.get_width() // 2
-        game_over_text = self.large_font.render("Game Over", True, ORANGE)
-        self.screen.blit(game_over_text, game_over_text.get_rect(center=(center_x, 160)))
