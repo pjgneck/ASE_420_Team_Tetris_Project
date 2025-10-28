@@ -1,16 +1,16 @@
 import pygame
 from game.renderers.base_renderer import BaseRenderer
-from game.data import WHITE, BLOCK_SIZE
+from game.data import WHITE, BLOCK_SIZE, DARK_BLOCK_COLORS, DARK_BLOCK_OUTLINE, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
 
 class BlockBlastRenderer(BaseRenderer):
-    def __init__(self, screen, game_mode):
-        super().__init__(screen, game_mode)
+    def __init__(self, screen, game_mode, dark_mode=False):
+        super().__init__(screen, game_mode, dark_mode)
 
     def render(self):
         """
         Renders the game board, score, and next pieces for drag-and-drop
         """
-        self.screen.fill(WHITE)
+        self.screen.fill(self.theme["background"])
         self._draw_game_board()
         self._draw_preview()
         self._draw_next_pieces()
@@ -66,8 +66,9 @@ class BlockBlastRenderer(BaseRenderer):
 
     def draw_block_at_screen_coords(self, block, screen_x, screen_y):
         """Draw a block at arbitrary screen coordinates (for next blocks / drag-and-drop)."""
+        colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
+        outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
         shape = block.get_shape()
-        color = block.get_color()
         for i in range(4):
             for j in range(4):
                 if i * 4 + j in shape:
@@ -75,36 +76,55 @@ class BlockBlastRenderer(BaseRenderer):
                     y = screen_y + i * BLOCK_SIZE
                     pygame.draw.rect(
                         self.screen,
-                        color,
+                        colors[block.color_index],
                         [x + 1, y + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2]
+                    )
+                    pygame.draw.rect(
+                        self.screen,
+                        outline_color,
+                        [x, y, BLOCK_SIZE, BLOCK_SIZE],
+                        1
                     )
 
     def _draw_dragging_block(self):
         handler = self.game_mode.input_handler
         block = handler.dragging_block
-
+        
         if block:
             # Compute snapped preview position
             preview_x, preview_y = self.compute_snapped_preview(block)
+
 
             # Only draw the preview if the block isn't already fully on the board
             # Check if the current x/y matches snapped x/y
             if (block.x != preview_x) or (block.y != preview_y):
                 shape = block.get_shape()
-                color = block.get_color()
+                colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
+                outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
 
                 for i in range(4):
                     for j in range(4):
                         if i * 4 + j in shape:
                             pygame.draw.rect(
                                 self.screen,
-                                color,
+                                colors[block.color_index],
                                 [
                                     self.offset_x + (preview_x + j) * BLOCK_SIZE + 1,
                                     self.offset_y + (preview_y + i) * BLOCK_SIZE + 1,
                                     BLOCK_SIZE - 2,
                                     BLOCK_SIZE - 2
                                 ]
+                            )
+                            pygame.draw.rect(
+                                self.screen,
+                                outline_color,
+                                [
+                                    self.offset_x + (preview_x + j) * BLOCK_SIZE + 1,
+                                    self.offset_y + (preview_y + i) * BLOCK_SIZE + 1,
+                                    BLOCK_SIZE - 2,
+                                    BLOCK_SIZE - 2
+                                ],
+                                1
                             )
 
     def _draw_preview(self):
@@ -118,17 +138,29 @@ class BlockBlastRenderer(BaseRenderer):
 
             # Draw the preview block
             shape = block.get_shape()
-            color = block.get_color()
+            colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
+            outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
             for i in range(4):
                 for j in range(4):
                     if i * 4 + j in shape:
                         pygame.draw.rect(
                             self.screen,
-                            color,
+                            colors[block.color_index],
                             [
                                 screen_x + j * BLOCK_SIZE + 1,
                                 screen_y + i * BLOCK_SIZE + 1,
                                 BLOCK_SIZE - 2,
                                 BLOCK_SIZE - 2
                             ]
+                        )
+                        pygame.draw.rect(
+                            self.screen,
+                            outline_color,
+                            [
+                                screen_x + j * BLOCK_SIZE + 1,
+                                screen_y + i * BLOCK_SIZE + 1,
+                                BLOCK_SIZE - 2,
+                                BLOCK_SIZE - 2
+                            ],
+                            1
                         )
