@@ -11,3 +11,8 @@ __pycache__/
 *.swo
 .DS_Store
 *.log
+
+# PyInstaller build folders
+build/
+dist/
+*.spec

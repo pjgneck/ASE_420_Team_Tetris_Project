@@ -1,0 +1,28 @@
+import os
+import platform
+import subprocess
+import sys
+
+# Step 1: Install dependencies
+print("\n🔹 Installing dependencies...\n")
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+
+# Step 2: Run build.py
+print("\n🔹 Building the executable...\n")
+subprocess.check_call([sys.executable, "build.py"])
+
+# Step 3: Locate the executable
+dist_dir = "dist"
+exe_name = "TetrisBOOM"  # match the name in build.py
+
+# Determine full path and extension
+exe_file = os.path.join(dist_dir, exe_name)
+if platform.system() == "Windows":
+    exe_file += ".exe"
+else:
+    # Make it executable on Linux
+    os.chmod(exe_file, 0o755)
+
+# Step 4: Run the executable
+print(f"\n🔹 Running {exe_file}...\n")
+subprocess.check_call([exe_file])
