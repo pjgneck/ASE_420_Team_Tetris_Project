@@ -57,7 +57,7 @@ class BlockBlastInputHandler(BaseInputHandler):
                 self.preview_pos = None
                 break
 
-        self.sound_manager.play("move_block")
+        self.sound_manager.play("rotate_block")
 
     def _drag(self, event, renderer):
         if not self.dragging_block:
