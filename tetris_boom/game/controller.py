@@ -9,6 +9,7 @@ from game.renderers.blockblast_renderer import BlockBlastRenderer
 from game.gamestate import GameState
 from game.board import Board
 from game.block_factory import BlockFactory
+from game.sound_manager import SoundManager
 
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
@@ -19,10 +20,14 @@ class GameController:
         """
         Initializes the game controller, setting up the screen, clock, and game mode.
         """
+        # Configure the mixer
+        pygame.mixer.pre_init(44100, -16, 2, 512)
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Set up the screen with given dimensions
         self.clock = pygame.time.Clock()  # Clock for controlling the frame rate
         pygame.display.set_caption("Tetris BOOM!")  # Set the window title
+
+        self.sound_manager = SoundManager()
 
         board = Board()
         block_factory = BlockFactory()
@@ -39,6 +44,8 @@ class GameController:
             state=self.state
         )
 
+        self.sound_manager.play("music_1")
+
         Overlay.get_player_name(
             screen=self.screen,
             renderer=TetrisRenderer(self.screen, self.game_mode)
@@ -47,15 +54,15 @@ class GameController:
     def run_game_loop(self):
         is_running = True
 
+        self.sound_manager.stop("music_1")
+        self.sound_manager.stop("game_start")
+
         while is_running:
             # Event handling
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                quit_command = self.game_mode.handle_input(event)
+                if event.type == pygame.QUIT or quit_command == "quit":
                     is_running = False
-                else:
-                    quit_command = self.game_mode.handle_input(event)
-                    if quit_command == "quit":
-                        is_running = False  
 
             # Update the game state
             self.game_mode.update()
@@ -91,3 +98,5 @@ class GameController:
             renderer=renderer_class,
             state=self.state
         )
+
+        self.sound_manager.play("switch_modes")
