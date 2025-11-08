@@ -55,7 +55,7 @@ class GameController:
         is_running = True
 
         self.sound_manager.stop("music_1")
-        self.sound_manager.stop("game_start")
+        self.sound_manager.play("game_start")
 
         while is_running:
             # Event handling

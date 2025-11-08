@@ -69,8 +69,6 @@ class SoundManager:
         else:
             sound.play(loops=loops)
 
-        print(f"Sound {sound_name} category {category}: played on channel {channel}")
-
     def stop(self, sound_name: str):
         """
         Stops a specific sound if it is currently playing.
