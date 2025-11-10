@@ -1,6 +1,7 @@
 import pygame
 
 from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW, LIGHT_THEME, DARK_THEME, DARK_BLOCK_COLORS, DARK_BLOCK_OUTLINE, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
+from game.sound_manager import SoundManager
 
 class BaseRenderer:
     def __init__(self, screen, game_mode, dark_mode=False):
@@ -30,6 +31,7 @@ class BaseRenderer:
         Fill screen with background color
         """
         self.screen.fill(self.theme["background"])
+        self.sound_manager = SoundManager()
 
     def _draw_game_board(self):
         """

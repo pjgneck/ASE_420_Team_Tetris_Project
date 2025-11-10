@@ -34,8 +34,11 @@ class TetrisInputHandler(BaseInputHandler):
             # Rotate
             elif event.key == pygame.K_UP:
                 block.rotate()
-                if not self.is_valid(block):
+                valid = self.is_valid(block)
+                if not valid:
                     block.undo_rotate()
+                else:
+                    self.sound_manager.play("rotate_block")
 
             # Hard drop
             elif event.key == pygame.K_SPACE:
