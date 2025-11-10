@@ -2,19 +2,14 @@ import os
 import pygame
 
 class SoundManager:
-    def __init__(self, sound_path: str = None):
-        base_dir = os.path.dirname(__file__)
-        if sound_path is None:
-            # Proper cross-platform path
-            self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
-        else:
-            self.sound_path = sound_path
-
+    def __init__(self):
         """
         Initializes the sound manager and loads all necessary sounds.
 
         :param sound_path: The base directory where sound files are stored.
         """
+        base_dir = os.path.dirname(__file__)
+        self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
         self.sounds = {}  # Dictionary to store loaded sounds
         pygame.mixer.set_num_channels(16)  # allow many concurrent sounds
 
