@@ -2,7 +2,7 @@ import os
 import platform
 import PyInstaller.__main__
 
-#Get file's Root path
+# Get file's Root path
 project_root = os.path.dirname(os.path.abspath(__file__))
 # detect the correct path separator
 sep = ";" if platform.system() == "Windows" else ":"
