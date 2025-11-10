@@ -2,13 +2,19 @@ import os
 import pygame
 
 class SoundManager:
-    def __init__(self, sound_path: str = "tetris_boom/assets/sounds"):
+    def __init__(self, sound_path: str = None):
+        base_dir = os.path.dirname(__file__)
+        if sound_path is None:
+            # Proper cross-platform path
+            self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
+        else:
+            self.sound_path = sound_path
+
         """
         Initializes the sound manager and loads all necessary sounds.
 
         :param sound_path: The base directory where sound files are stored.
         """
-        self.sound_path = sound_path  # Path to the folder with sound files
         self.sounds = {}  # Dictionary to store loaded sounds
         pygame.mixer.set_num_channels(16)  # allow many concurrent sounds
 
