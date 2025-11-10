@@ -1,13 +1,13 @@
 import pygame
 from game.renderers.base_renderer import BaseRenderer
-from game.data import WHITE, BLOCK_SIZE, DARK_BLOCK_OUTLINE, DARK_BLOCK_COLORS, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
+from game.data import WHITE, BLOCK_SIZE
 
 class TetrisRenderer(BaseRenderer):
-    def __init__(self, screen, game_mode, dark_mode=False):
-        super().__init__(screen, game_mode, dark_mode)
+    def __init__(self, screen, game_mode):
+        super().__init__(screen, game_mode)
 
     def render(self):
-        self.screen.fill(self.theme["background"])
+        self.screen.fill(WHITE)
         self._draw_game_board()
         self._draw_current_block()
         self._draw_score()
@@ -24,8 +24,6 @@ class TetrisRenderer(BaseRenderer):
         """
         current_block = self.state.current_block
         shape_indices = current_block.get_shape()  # e.g. [1, 5, 9, 13]
-        colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
-        outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
 
         for idx in shape_indices:
             # Compute row and column inside the block's local grid
@@ -36,27 +34,13 @@ class TetrisRenderer(BaseRenderer):
             x = current_block.x + c
             y = current_block.y + r
 
-            color = current_block.get_color(colors)
-
             pygame.draw.rect(
                 self.screen,
-                color,
+                current_block.get_color(),
                 [
                     self.offset_x + x * BLOCK_SIZE + 1,
                     self.offset_y + y * BLOCK_SIZE + 1,
                     BLOCK_SIZE - 2,
                     BLOCK_SIZE - 2
                 ]
-            )
-
-            pygame.draw.rect(
-                self.screen,
-                outline_color,
-                [
-                    self.offset_x + x * BLOCK_SIZE,
-                    self.offset_y + y * BLOCK_SIZE,
-                    BLOCK_SIZE,
-                    BLOCK_SIZE
-                ],
-                1
             )

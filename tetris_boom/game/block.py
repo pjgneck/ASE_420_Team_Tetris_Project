@@ -14,7 +14,7 @@ class Block:
 
         # Choose a random shape and color (index-based)
         self.shape = random.choices(range(len(SHAPES)), weights=SHAPE_WEIGHTS, k=1)[0]
-        self.color_index = random.randint(1, len(BLOCK_COLORS) - 1) # 0 is reservered for empty space
+        self.color = random.randint(1, len(BLOCK_COLORS) - 1) # 0 is reservered for empty space
 
         self.rotation = 0  # Index of the current rotation state
 
@@ -49,20 +49,18 @@ class Block:
         """
         return SHAPES[self.shape][self.rotation]
 
-    def get_color(self, theme_colors=None):
+    def get_color(self):
         """
         Returns the color associated with this block.
 
         :return: An RGB tuple from the COLORS list.
         """
-        if theme_colors:
-            return theme_colors[self.color_index]
-        return BLOCK_COLORS[self.color_index]
+        return BLOCK_COLORS[self.color]
 
     def copy(self):
         new_block = Block(self.x, self.y)
         new_block.shape = self.shape
-        new_block.color_index = self.color_index
+        new_block.color = self.color
         new_block.rotation = self.rotation
         new_block.screen_x = getattr(self, 'screen_x', 0)
         new_block.screen_y = getattr(self, 'screen_y', 0)
