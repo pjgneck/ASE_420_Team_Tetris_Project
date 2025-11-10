@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from game.sound_manager import SoundManager
+
 class BaseInputHandler(ABC):
     def __init__(self, game_mode):
         """
@@ -8,6 +10,7 @@ class BaseInputHandler(ABC):
         self.game_mode = game_mode
         self.state = game_mode.state
         self.board = self.state.board
+        self.sound_manager = SoundManager()
 
     @abstractmethod
     def handle(self, event):
