@@ -39,10 +39,12 @@ class GameController:
             state=self.state
         )
 
-        Overlay.get_player_name(
+        player_name = Overlay.get_player_name(
             screen=self.screen,
             renderer=TetrisRenderer(self.screen, self.game_mode)
         )
+
+        self.state.score_manager.set_player_name(player_name)
 
     def run_game_loop(self):
         is_running = True
@@ -73,6 +75,8 @@ class GameController:
             self.game_mode.render()
             self.clock.tick(FPS)
 
+            self.state.score_manager.update_leaderboard()
+            
         pygame.quit()
 
     def switch_mode(self, new_mode_class, input_handler_class, renderer_class):

@@ -68,6 +68,7 @@ class BaseRenderer:
         """
         center_x = self.screen.get_width() // 2
         score_manager = self.state.score_manager
+        player_name = score_manager.player_name
         current_score = score_manager.get_score()
         highscore = score_manager.get_highscore()
         highscore_name = score_manager.get_highscore_player()
@@ -80,8 +81,23 @@ class BaseRenderer:
             points_text = self.font.render(f"New High Score: {current_score} points!", True, YELLOW)
             self.screen.blit(congrats_text, congrats_text.get_rect(center=(center_x, 210)))
             self.screen.blit(points_text, points_text.get_rect(center=(center_x, 240)))
+            leaderboard_start_y = 270
         else:
             press_q_text = self.large_font.render("Press Q", True, YELLOW)
             to_quit_text = self.large_font.render("to Quit", True, YELLOW)
             self.screen.blit(press_q_text, press_q_text.get_rect(center=(center_x, 200)))
             self.screen.blit(to_quit_text, to_quit_text.get_rect(center=(center_x, 240)))
+            leaderboard_start_y = 280
+
+        leaderboard_header = self.font.render("Leaderboard:", True, BLACK)
+        self.screen.blit(leaderboard_header, leaderboard_header.get_rect(center=(center_x, leaderboard_start_y)))
+
+        for i, entry in enumerate(score_manager.get_leaderboard(), start=1):
+            if entry['name'] == player_name and entry['score'] == current_score:
+                color = ORANGE
+            else:
+                color = BLACK
+
+            entry_text = self.font.render(f"{i}. {entry['name']} - {entry['score']}", True, color)
+            self.screen.blit(entry_text, entry_text.get_rect(center=(center_x, leaderboard_start_y + 25 * i)))
+ 
