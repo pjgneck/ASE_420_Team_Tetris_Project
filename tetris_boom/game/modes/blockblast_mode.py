@@ -2,13 +2,13 @@ import pygame
 from game.modes.base_mode import GameMode
 
 class BlockBlastMode(GameMode):
-    def __init__(self, screen, input_handler, renderer, state):
+    def __init__(self, screen, input_handler, renderer, state, dark_mode=False):
         """
         :param state: Shared GameState instance containing board, score, etc.
         """
         self.state = state
         self.input_handler = input_handler(self)
-        self.renderer = renderer(screen, self)
+        self.renderer = renderer(screen, self, dark_mode=dark_mode)
         self.screen = screen
         self.game_over = False
 

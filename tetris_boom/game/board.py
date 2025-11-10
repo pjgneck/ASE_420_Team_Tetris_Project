@@ -44,7 +44,7 @@ class Board:
                     x = block.x + j  # x-position of the block part
                     y = block.y + i  # y-position of the block part
                     if y >= 0:  # Avoid updating negative y-values (above the board)
-                        self.grid[y][x] = block.color  # Set the block's color in the grid
+                        self.grid[y][x] = block.color_index  # Set the block's color in the grid
 
     def break_lines(self):
         """

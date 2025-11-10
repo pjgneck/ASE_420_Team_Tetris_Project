@@ -2,13 +2,13 @@ import pygame
 from game.modes.base_mode import GameMode
 
 class TetrisMode(GameMode):
-    def __init__(self, screen: pygame.Surface, input_handler, renderer, state):
+    def __init__(self, screen: pygame.Surface, input_handler, renderer, state, dark_mode=False):
         """
         :param state: Shared GameState instance containing board, score, block pool, etc.
         """
         self.state = state  # Shared game state
         self.input_handler = input_handler(self)
-        self.renderer = renderer(screen, self)
+        self.renderer = renderer(screen, self, dark_mode=dark_mode)
         self.screen = screen
         self.game_over = False
         self.gravity = 1.5

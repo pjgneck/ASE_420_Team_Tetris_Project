@@ -36,12 +36,15 @@ class GameController:
 
         self.last_score_checkpoint = 0
 
+        self.dark_mode= False
+
         # Initialize the game mode with required dependencies
         self.game_mode = TetrisMode(
             screen=self.screen,
             input_handler=TetrisInputHandler,
             renderer=TetrisRenderer,
-            state=self.state
+            state=self.state,
+            dark_mode=self.dark_mode
         )
 
         self.sound_manager.play("music_1")
@@ -63,6 +66,15 @@ class GameController:
                 quit_command = self.game_mode.handle_input(event)
                 if event.type == pygame.QUIT or quit_command == "quit":
                     is_running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_t:
+                        self.dark_mode = not self.dark_mode
+                        self.game_mode.renderer.toggle_theme()
+
+                
+                quit_command = self.game_mode.handle_input(event)
+                if quit_command == "quit":
+                    is_running = False  
 
             # Update the game state
             self.game_mode.update()
@@ -71,10 +83,11 @@ class GameController:
             current_score = self.state.score_manager.get_score()
             if current_score // 5 > self.last_score_checkpoint:
                 self.last_score_checkpoint = current_score // 5
+                dark_mode_active = self.game_mode.renderer.dark_mode
                 if isinstance(self.game_mode, TetrisMode):
-                    self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer)
+                    self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer, dark_mode_active)
                 else:
-                    self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer)
+                    self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer, dark_mode_active)
 
             # Render
             self.game_mode.render()
@@ -82,7 +95,7 @@ class GameController:
 
         pygame.quit()
 
-    def switch_mode(self, new_mode_class, input_handler_class, renderer_class):
+    def switch_mode(self, new_mode_class, input_handler_class, renderer_class, dark_mode):
         """
         Placeholder for switching between game modes (if applicable in future).
         :param new_mode_class: The class of the mode to switch to (TetrisMode or BlockBlastMode)
@@ -96,7 +109,8 @@ class GameController:
             screen=self.screen,
             input_handler=input_handler_class,
             renderer=renderer_class,
-            state=self.state
+            state=self.state,
+            dark_mode=dark_mode
         )
 
         self.sound_manager.play("switch_modes")
