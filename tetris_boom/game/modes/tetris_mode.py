@@ -58,10 +58,7 @@ class TetrisMode(GameMode):
 
         # Check game over
         if not self.state.board.is_valid_position(self.state.current_block):
-            if not self.game_over:  # Trigger once
-                self.game_over = True
-                self.renderer.sound_manager.play("game_over")
-
+            self.game_over = True
 
     def handle_input(self, event):
         """

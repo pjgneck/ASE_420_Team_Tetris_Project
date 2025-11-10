@@ -50,7 +50,7 @@ class Board:
         """
         Checks for full lines and clears them. Newly empty lines are added to the top.
 
-        :return lines_cleared: The number of lines cleared
+        :return: The number of lines cleared
         """
         lines_cleared = 0
         new_grid = []  # New grid without cleared lines
