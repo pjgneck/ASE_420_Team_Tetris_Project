@@ -11,7 +11,6 @@ class SoundManager:
         base_dir = os.path.dirname(__file__)
         self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
         self.sounds = {}  # Dictionary to store loaded sounds
-        pygame.mixer.set_num_channels(16)  # allow many concurrent sounds
 
         # Create dedicated channels for different sound types
         self.channels = {
@@ -39,6 +38,7 @@ class SoundManager:
             "game_start": load("game_start"),
             "game_over": load("game_over"),
             "music_1": load("music_1"),
+            "music_1_loop": load("music_1_loop"),
             "rotate_block": load("rotate_block"),
             "place_block": load("place_block"),
             "line_clear_1": load("line_clear_1"),
@@ -94,6 +94,7 @@ class SoundManager:
             "game_start": "alerts",
             "game_over": "alerts",
             "music_1": "music",
+            "music_1_loop": "music",
             "rotate_block": "effects_1",
             "place_block": "effects_2",
             "line_clear_1": "effects_3",

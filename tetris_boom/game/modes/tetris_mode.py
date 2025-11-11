@@ -62,6 +62,7 @@ class TetrisMode(GameMode):
         if not self.state.board.is_valid_position(self.state.current_block):
             if not self.game_over:  # Trigger once
                 self.game_over = True
+                self.renderer.sound_manager.stop("music_1_loop")
                 self.renderer.sound_manager.play("game_over")
 
 

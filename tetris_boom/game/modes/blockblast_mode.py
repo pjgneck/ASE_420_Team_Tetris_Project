@@ -34,6 +34,7 @@ class BlockBlastMode(GameMode):
 
         # Play sound only when transitioning to game over
         if not was_game_over and self.game_over:
+            self.renderer.sound_manager.stop("music_1_loop")
             self.renderer.sound_manager.play("game_over")
 
     def handle_input(self, event):
