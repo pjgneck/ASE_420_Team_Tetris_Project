@@ -1,8 +1,9 @@
 import pygame
 from game.input_handlers.base_input_handler import BaseInputHandler
+from game.modes.base_mode import GameMode
 
 class TetrisInputHandler(BaseInputHandler):
-    def __init__(self, tetris_mode):
+    def __init__(self, tetris_mode: GameMode):
         super().__init__(tetris_mode)
         self.tetris_mode = tetris_mode  # For pressing_down and game_over flags
 

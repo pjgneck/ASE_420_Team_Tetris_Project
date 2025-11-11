@@ -1,9 +1,10 @@
 import pygame
 from game.data import BLOCK_SIZE
 from game.input_handlers.base_input_handler import BaseInputHandler
+from game.modes.base_mode import GameMode
 
 class BlockBlastInputHandler(BaseInputHandler):
-    def __init__(self, blockblast_mode):
+    def __init__(self, blockblast_mode: GameMode):
         super().__init__(blockblast_mode)
         self.blockblast_mode = blockblast_mode
         self.dragging_block = None

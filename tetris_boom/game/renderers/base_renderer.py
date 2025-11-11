@@ -1,10 +1,10 @@
 import pygame
 
 from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW
-from game.sound_manager import SoundManager
+from game.modes.base_mode import GameMode
 
 class BaseRenderer:
-    def __init__(self, screen, game_mode):
+    def __init__(self, screen: pygame.Surface, game_mode: GameMode):
         self.screen = screen
         self.game_mode = game_mode
         self.state = game_mode.state
@@ -16,7 +16,7 @@ class BaseRenderer:
         self.font = pygame.font.SysFont('Calibri', 20, True)
         self.large_font = pygame.font.SysFont('Calibri', 35, True)
 
-        self.sound_manager = SoundManager()
+        self.sound_manager = self.state.sound_manager
 
     def _draw_game_board(self):
         """

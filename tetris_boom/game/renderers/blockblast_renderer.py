@@ -1,9 +1,10 @@
 import pygame
 from game.renderers.base_renderer import BaseRenderer
 from game.data import WHITE, BLOCK_SIZE
+from game.modes.base_mode import GameMode
 
 class BlockBlastRenderer(BaseRenderer):
-    def __init__(self, screen, game_mode):
+    def __init__(self, screen: pygame.Surface, game_mode: GameMode):
         super().__init__(screen, game_mode)
 
     def render(self):
