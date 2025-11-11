@@ -8,14 +8,16 @@ class TetrisInputHandler(BaseInputHandler):
         self.tetris_mode = tetris_mode  # For pressing_down and game_over flags
 
     def handle(self, event):
+        # Stop processing input if game is over
+        if self.tetris_mode.game_over:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+                return "quit"
+            return  # Ignore all other input when game over
+
         block = self.state.current_block
         factory = self.state.block_factory
 
         if event.type == pygame.KEYDOWN:
-            # Quit game if game over
-            if self.tetris_mode.game_over and event.key == pygame.K_q:
-                return "quit"
-
             # Move left
             if event.key == pygame.K_LEFT:
                 block.move(-1, 0)
@@ -53,7 +55,7 @@ class TetrisInputHandler(BaseInputHandler):
 
                 # Check for game over
                 if not self.is_valid(self.state.current_block):
-                    self.tetris_mode.game_over = True
+                    self.tetris_mode._handle_game_over()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_DOWN:
