@@ -23,19 +23,14 @@ class BlockBlastMode(GameMode):
         Update game logic.
         For BlockBlast, blocks don't fall automatically. Only handle dragging.
         """
-        was_game_over = self.game_over
-
         has_space = any(
             self.state.board.has_space_for_block(block.copy())
             for block in self.state.next_blocks
         )
 
-        self.game_over = not has_space
-
-        # Play sound only when transitioning to game over
-        if not was_game_over and self.game_over:
-            self.renderer.sound_manager.stop("music_1_loop")
-            self.renderer.sound_manager.play("game_over")
+        # Check game over
+        if not has_space:
+            self._handle_game_over()
 
     def handle_input(self, event):
         """
