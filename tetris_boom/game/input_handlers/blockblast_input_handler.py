@@ -15,10 +15,11 @@ class BlockBlastInputHandler(BaseInputHandler):
     def handle(self, event):
         renderer = self.blockblast_mode.renderer
         
-        # Quit game if game over
-        if event.type == pygame.KEYDOWN:
-            if self.blockblast_mode.game_over and event.key == pygame.K_q:
+        # Stop processing input if game is over
+        if self.blockblast_mode.game_over:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 return "quit"
+            return  # Ignore all other input when game over
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             self._start_drag(event, renderer)
