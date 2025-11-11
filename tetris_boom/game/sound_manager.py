@@ -5,31 +5,17 @@ class SoundManager:
     def __init__(self):
         """
         Initializes the sound manager and loads all necessary sounds.
-
-        :param sound_path: The base directory where sound files are stored.
         """
         base_dir = os.path.dirname(__file__)
         self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
         self.sounds = {}  # Dictionary to store loaded sounds
 
-        # Create dedicated channels for different sound types
-        self.channels = {
-            "music": pygame.mixer.Channel(0),
-            "effects_1": pygame.mixer.Channel(1),
-            "effects_2": pygame.mixer.Channel(2),
-            "effects_3": pygame.mixer.Channel(3),
-            "alerts": pygame.mixer.Channel(4),
-            "misc": pygame.mixer.Channel(5)
-        }
-
         self._load_sounds()
-        self._assign_channels()
         self._set_default_volumes()
 
     def _load_sounds(self):
         """
         Loads all required sound files from the given sound directory.
-        This method should map sound identifiers to their pygame sound objects.
         """
         def load(name):
             return pygame.mixer.Sound(os.path.join(self.sound_path, f"{name}.ogg"))
@@ -59,15 +45,15 @@ class SoundManager:
             return
 
         sound = self.sounds[sound_name]
-        category = self.channel_map.get(sound_name, "effects")
-        channel = self.channels.get(category)
         loops = -1 if loop else 0
-
-        if channel:
-            if loop and channel.get_busy():
-                return
-            channel.play(sound, loops=loops)
+        
+        # Special handling for music to ensure it doesn't duplicate
+        if sound_name in ["music_1", "music_1_loop"] and loop:
+            # Stop any currently playing music before starting new loop
+            self._stop_all_music()
+            sound.play(loops=-1)
         else:
+            # Let pygame automatically handle channel allocation for all other sounds
             sound.play(loops=loops)
 
     def stop(self, sound_name: str):
@@ -85,27 +71,16 @@ class SoundManager:
         """
         pygame.mixer.stop()
 
-    def _assign_channels(self):
+    def _stop_all_music(self):
         """
-        Assign each sound to an appropriate channel category.
-        This keeps 'play("sound")' usage simple and lag-free.
+        Stops all music tracks to prevent duplication.
         """
-        self.channel_map  = {
-            "game_start": "alerts",
-            "game_over": "alerts",
-            "music_1": "music",
-            "music_1_loop": "music",
-            "rotate_block": "effects_1",
-            "place_block": "effects_2",
-            "line_clear_1": "effects_3",
-            "line_clear_2": "effects_3",
-            "easter_egg": "effects_3",
-            "switch_modes": "alerts",
-            "highscore": "alerts"
-        }
+        for name in ["music_1", "music_1_loop"]:
+            if name in self.sounds:
+                self.sounds[name].stop()
 
     def _set_default_volumes(self):
-        """Set category-based default volumes."""
+        """Set default volumes for different sound types."""
         for sfx_name, sound in self.sounds.items():
             if "music" in sfx_name:
                 sound.set_volume(0.4)
