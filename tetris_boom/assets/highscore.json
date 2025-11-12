@@ -1,14 +1,14 @@
 [
     {
-        "name": "CLEYTON",
+        "name": "crs",
+        "score": 24
+    },
+    {
+        "name": "bobby",
         "score": 20
     },
     {
-        "name": "crs",
-        "score": 14
-    },
-    {
-        "name": "park",
-        "score": 9
+        "name": "dylan",
+        "score": 16
     }
 ]

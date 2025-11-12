@@ -77,7 +77,6 @@ class ScoreManager:
                 with open(self.save_path, "r") as f:
                     self.leaderboard = json.load(f)
             except:
-                print("failed to pull path")
                 self.leaderboard = []
 
     def _save_leaderboard(self):
@@ -95,33 +94,39 @@ class ScoreManager:
         player_name = self.player_name.strip() or "Player"
         player_score = self.get_score()
 
-        # Load existing leaderboard (already done at init)
+        # Make a deepcopy of the current leaderboard
         leaderboard = copy.deepcopy(self.leaderboard)
 
-        # Ensure objects are in correct format
-        cleaned = []
-        for entry in leaderboard:
-            if isinstance(entry, dict) and "name" in entry and "score" in entry:
-                cleaned.append(entry)
-        leaderboard = cleaned
+        # Ensure all entries are valid
+        leaderboard = [entry for entry in leaderboard if isinstance(entry, dict) and "name" in entry and "score" in entry]
 
-        # Insert new score
+        # Check if this exact score from this player already exists in the leaderboard
+        already_exists = any(
+            entry["name"] == player_name and entry["score"] == player_score 
+            for entry in leaderboard
+        )
+    
+        # If it already exists, don't add it again
+        if already_exists:
+            return
+        # Insert the new score once
         inserted = False
-        for i in range(len(leaderboard)):
-            if player_score > leaderboard[i]["score"]:
-                leaderboard.insert(i, {"name": player_name, "score": player_score})
+        new_leaderboard = []
+        for entry in leaderboard:
+            if not inserted and player_score > entry["score"]:
+                new_leaderboard.append({"name": player_name, "score": player_score})
                 inserted = True
-                break
+            new_leaderboard.append(entry)
 
-        # If score wasn't higher than anything, place at bottom
+        # If not inserted yet, append at the end
         if not inserted:
-            leaderboard.append({"name": player_name, "score": player_score})
+            new_leaderboard.append({"name": player_name, "score": player_score})
 
-        # Keep top 3 only
-        leaderboard = leaderboard[:3]
+        # Keep only top 3
+        new_leaderboard = new_leaderboard[:3]
 
         # Save back to file
-        self.leaderboard = leaderboard
+        self.leaderboard = new_leaderboard
         self._save_leaderboard()
 
     def get_leaderboard(self):
