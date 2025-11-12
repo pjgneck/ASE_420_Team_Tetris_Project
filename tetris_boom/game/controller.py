@@ -84,7 +84,6 @@ class GameController:
             self.game_mode.render()
             self.clock.tick(FPS)
             
-        self.state.score_manager.update_leaderboard()
             
         pygame.quit()
 
