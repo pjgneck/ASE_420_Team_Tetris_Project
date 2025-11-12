@@ -3,7 +3,12 @@ import json
 import copy
 
 class ScoreManager:
-    def __init__(self, save_path: str = "tetris_boom/assets/highscore.json"):
+    def __init__(self):
+        
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        print(BASE_DIR)
+        save_path = os.path.join(BASE_DIR, "assets", "highscore.json")
+        print(save_path)
         """
         Initializes the score manager, loading the highscore from a file if it exists.
 
@@ -72,6 +77,7 @@ class ScoreManager:
                 with open(self.save_path, "r") as f:
                     self.leaderboard = json.load(f)
             except:
+                print("failed to pull path")
                 self.leaderboard = []
 
     def _save_leaderboard(self):
