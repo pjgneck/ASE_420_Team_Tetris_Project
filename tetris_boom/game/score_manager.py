@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 
 class ScoreManager:
     def __init__(self, save_path: str = "tetris_boom/assets/highscore.json"):
@@ -82,14 +83,14 @@ class ScoreManager:
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self.save_path), exist_ok=True)
         with open(self.save_path, "w") as f:
-            json.dump(self.leaderboard, f)
+            json.dump(self.leaderboard, f, indent=4)
 
     def update_leaderboard(self):
         player_name = self.player_name.strip() or "Player"
         player_score = self.get_score()
 
         # Load existing leaderboard (already done at init)
-        leaderboard = self.leaderboard.copy()
+        leaderboard = copy.deepcopy(self.leaderboard)
 
         # Ensure objects are in correct format
         cleaned = []
@@ -110,13 +111,12 @@ class ScoreManager:
         if not inserted:
             leaderboard.append({"name": player_name, "score": player_score})
 
-        # Keep top 5 only
+        # Keep top 3 only
         leaderboard = leaderboard[:3]
 
         # Save back to file
         self.leaderboard = leaderboard
         self._save_leaderboard()
-
 
     def get_leaderboard(self):
         """

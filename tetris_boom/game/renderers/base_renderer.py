@@ -66,6 +66,8 @@ class BaseRenderer:
         """
         Draw "Game Over" message
         """
+        self.state.score_manager.update_leaderboard()
+
         center_x = self.screen.get_width() // 2
         score_manager = self.state.score_manager
         player_name = score_manager.player_name
