@@ -58,10 +58,14 @@ class GameController:
             self.state.next_blocks.append(self.block_factory.create_block())
 
         self.last_score_checkpoint = 0
+        self.player_name ="" 
+
+        self.dark_mode= False
 
     def _initialize_starting_mode(self):
         """Initialize the starting game mode using a factory method."""
         self.game_mode = self._create_mode(TetrisMode)
+        dark_mode=self.dark_mode
         self.sound_manager.play("music_1")
 
     def _create_mode(self, mode_class):
@@ -72,6 +76,7 @@ class GameController:
                 screen=self.screen, 
                 state=self.state,
                 renderer=None  # Will set after creation
+                
             )
             renderer = TetrisRenderer(
                 screen=self.screen, 
@@ -98,7 +103,7 @@ class GameController:
 
     def _initialize_player(self):
         """Initialize player-specific settings."""
-        Overlay.get_player_name(
+        self.player_name = Overlay.get_player_name(
             screen=self.screen,
             renderer=self.game_mode.renderer
         )
@@ -114,7 +119,7 @@ class GameController:
         self.game_mode = self._create_mode(new_mode_class)
         self.sound_manager.play("switch_modes")
 
-        self.state.score_manager.set_player_name(player_name)
+        self.state.score_manager.set_player_name(self.player_name)
 
     def run_game_loop(self):
         """Main game loop handling input, updates, and rendering."""

@@ -1,11 +1,11 @@
 import pygame
 from game.renderers.base_renderer import BaseRenderer
-from game.data import WHITE, BLOCK_SIZE
+from game.data import WHITE, BLOCK_SIZE, DARK_BLOCK_OUTLINE, DARK_BLOCK_COLORS, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
 from game.modes.base_mode import GameMode
 
 class TetrisRenderer(BaseRenderer):
-    def __init__(self, screen: pygame.Surface, game_mode: GameMode):
-        super().__init__(screen, game_mode)
+    def __init__(self, screen: pygame.Surface, game_mode: GameMode, dark_mode=False):
+        super().__init__(screen, game_mode, dark_mode)
 
     def render(self):
         self.screen.fill(self.theme["background"])

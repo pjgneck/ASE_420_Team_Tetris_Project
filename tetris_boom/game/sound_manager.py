@@ -2,36 +2,29 @@ import os
 import pygame
 
 class SoundManager:
+
+
     def __init__(self):
         """
         Initializes the sound manager and loads all necessary sounds.
         """
-        base_dir = os.path.dirname(__file__)
-        self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.sound_path = os.path.join(BASE_DIR, "assets", "sounds")
         self.sounds = {}  # Dictionary to store loaded sounds
 
         self._load_sounds()
         self._set_default_volumes()
 
+    
+    def load(self, name):
+        return pygame.mixer.Sound(os.path.join(self.sound_path, f"{name}.ogg"))
+
     def _load_sounds(self):
         """
         Loads all required sound files from the given sound directory.
         """
-        def load(name):
-            return pygame.mixer.Sound(os.path.join(self.sound_path, f"{name}.ogg"))
-
         self.sounds = {
-            "game_start": load("game_start"),
-            "game_over": load("game_over"),
-            "music_1": load("music_1"),
-            "music_1_loop": load("music_1_loop"),
-            "rotate_block": load("rotate_block"),
-            "place_block": load("place_block"),
-            "line_clear_1": load("line_clear_1"),
-            "line_clear_2": load("line_clear_2"),
-            "switch_modes": load("switch_modes"),
-            "highscore": load("highscore"),
-            "easter_egg": load("easter_egg"),
+            "music_1_loop": pygame.mixer.Sound(os.path.join(self.sound_path, "music_1_loop.ogg")),
         }
 
     def play(self, sound_name: str, loop=False):

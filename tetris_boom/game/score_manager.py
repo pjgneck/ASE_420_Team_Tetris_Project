@@ -5,7 +5,12 @@ import copy
 from game.sound_manager import SoundManager
 
 class ScoreManager:
-    def __init__(self, sound_manager: SoundManager, save_path: str = "tetris_boom/assets/highscore.json"):
+    def __init__(self, sound_manager: SoundManager):
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        print(BASE_DIR)
+        save_path = os.path.join(BASE_DIR, "assets", "highscore.json")
+        print(save_path)
+        
         """
         Initializes the score manager, loading the highscore from a file if it exists.
 

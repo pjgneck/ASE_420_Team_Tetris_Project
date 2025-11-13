@@ -1,10 +1,10 @@
 import pygame
 
-from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW
+from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW, LIGHT_THEME, DARK_THEME, DARK_BLOCK_COLORS, DARK_BLOCK_OUTLINE, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
 from game.modes.base_mode import GameMode
 
 class BaseRenderer:
-    def __init__(self, screen: pygame.Surface, game_mode: GameMode):
+    def __init__(self, screen: pygame.Surface, game_mode: GameMode, dark_mode=False):
         self.screen = screen
         self.game_mode = game_mode
         self.state = game_mode.state
@@ -16,7 +16,23 @@ class BaseRenderer:
         self.font = pygame.font.SysFont('Calibri', 20, True)
         self.large_font = pygame.font.SysFont('Calibri', 35, True)
 
+        self.dark_mode = dark_mode
+        self.theme = DARK_THEME if dark_mode else LIGHT_THEME
+
         self.sound_manager = self.state.sound_manager
+
+    def toggle_theme(self):
+        """
+        Switch between dark and light modes.
+        """
+        self.dark_mode = not self.dark_mode
+        self.theme = DARK_THEME if self.dark_mode else LIGHT_THEME
+    
+    def _draw_background(self):
+        """
+        Fill screen with background color
+        """
+        self.screen.fill(self.theme["background"])
 
     def _draw_game_board(self):
         """

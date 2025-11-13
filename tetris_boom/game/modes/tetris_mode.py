@@ -4,7 +4,7 @@ from game.renderers.base_renderer import BaseRenderer
 from game.gamestate import GameState
 
 class TetrisMode(GameMode):
-    def __init__(self, screen: pygame.Surface, state: GameState, renderer: BaseRenderer):
+    def __init__(self, screen: pygame.Surface, state: GameState, renderer: BaseRenderer, dark_mode=False):
         """
         :param state: Shared GameState instance containing board, score, block pool, etc.
         """
