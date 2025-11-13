@@ -67,6 +67,7 @@ class GameController:
         self.game_mode = self._create_mode(TetrisMode)
         dark_mode=self.dark_mode
         self.sound_manager.play("music_1")
+        self.dark_mode = False
 
     def _create_mode(self, mode_class):
         """Factory method to create any game mode with proper dependencies."""
@@ -111,15 +112,41 @@ class GameController:
         from game.globals import get_player_name
         self.state.score_manager.set_player_name(get_player_name())
 
-    def switch_mode(self, new_mode_class):
-        """Switch to a new game mode using the factory."""
+    def switch_mode(self, new_mode_class, input_handler_class, renderer_class, dark_mode):
+        """
+        Switch to a new game mode with specified components.
+        :param new_mode_class: The class of the mode to switch to (TetrisMode or BlockBlastMode)
+        :param input_handler_class: The input handler class for the new mode
+        :param renderer_class: The renderer class for the new mode
+        :param dark_mode: Boolean indicating if dark mode is active
+        """
         if self.state.current_block is None:
             self.state.current_block = self.state.block_factory.create_block()
 
-        self.game_mode = self._create_mode(new_mode_class)
-        self.sound_manager.play("switch_modes")
+        mode = new_mode_class(
+            screen=self.screen,
+            state=self.state,
+            renderer=None,
+            dark_mode=dark_mode
+        )
 
-        self.state.score_manager.set_player_name(self.player_name)
+        renderer = renderer_class(
+            screen=self.screen,
+            game_mode = mode,
+            dark_mode=dark_mode
+        )
+
+        mode.renderer = renderer
+
+        input_handler = input_handler_class(mode)
+        mode.input_handler = input_handler
+
+        self.game_mode = mode
+        
+        self.sound_manager.play("switch_modes")
+        # Set the player name in the score manager
+        from game.globals import get_player_name
+        self.state.score_manager.set_player_name(get_player_name())
 
     def run_game_loop(self):
         """Main game loop handling input, updates, and rendering."""
@@ -151,11 +178,11 @@ class GameController:
             current_score = self.state.score_manager.get_score()
             if current_score // 5 > self.last_score_checkpoint:
                 self.last_score_checkpoint = current_score // 5
-                dark_mode_active = self.game_mode.renderer.dark_mode
+                dark_mode_active = self.dark_mode
                 if isinstance(self.game_mode, TetrisMode):
-                    self.switch_mode(BlockBlastMode)
+                    self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer, dark_mode_active)
                 else:
-                    self.switch_mode(TetrisMode)
+                    self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer, dark_mode_active)
 
             # Render
             self.game_mode.render()

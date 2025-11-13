@@ -7,6 +7,7 @@ class BaseRenderer:
     def __init__(self, screen: pygame.Surface, game_mode: GameMode, dark_mode=False):
         self.screen = screen
         self.game_mode = game_mode
+        self.dark_mode = False
         self.state = game_mode.state
         self.board = self.state.board
 
@@ -20,13 +21,22 @@ class BaseRenderer:
         self.theme = DARK_THEME if dark_mode else LIGHT_THEME
 
         self.sound_manager = self.state.sound_manager
+        self._load_theme()
+
+    def _load_theme(self):
+        """Load color them based on settings"""
+        if self.dark_mode:
+            self.theme = DARK_THEME
+        else:
+            self.theme = LIGHT_THEME
 
     def toggle_theme(self):
-        """
-        Switch between dark and light modes.
-        """
         self.dark_mode = not self.dark_mode
-        self.theme = DARK_THEME if self.dark_mode else LIGHT_THEME
+        self._load_theme()
+
+    def set_theme(self, dark_mode: bool):
+        self.dark_mode = dark_mode
+        self._load_theme()
     
     def _draw_background(self):
         """
