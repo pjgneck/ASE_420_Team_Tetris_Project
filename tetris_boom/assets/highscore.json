@@ -1,1 +1,10 @@
-{"name": "Denver", "highscore": 31}
+[
+    {
+        "name": "Denver",
+        "score": 43
+    },
+    {
+        "name": "Denver",
+        "score": 0
+    }
+]

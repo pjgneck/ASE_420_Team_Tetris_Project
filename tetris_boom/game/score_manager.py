@@ -11,11 +11,11 @@ class ScoreManager:
 
         :param save_path: The file path to save/load the highscore data.
         """
-        self.leaderboard = []  # Highest score ever achieved
+        self.leaderboard = []  # List of top scores
         self.score = 0  # Current score of the game session
-        self.player_name = ""  # Name of the player with the highscore
+        self.player_name = ""  # Name of the current player
         self.save_path = save_path  # Path to the highscore file
-        self._load_leaderboard()  # Load the highscore from file (if exists)
+        self._load_leaderboard()  # Load the leaderboard from file (if exists)
 
         self.sound_manager = sound_manager
 
@@ -47,12 +47,9 @@ class ScoreManager:
             
             self.sound_manager.play(line_clear_sound)
         
-        if self.score > self.highscore_data["highscore"]:
-            self.highscore_data = {
-                "name": self.player_name,
-                "highscore": self.score
-            }
-            self._save_highscore()  # Save the new highscore
+        # Check if current score is higher than the highest score in leaderboard
+        highest_score = self.get_highscore()
+        if self.score > highest_score:
             self.sound_manager.play("highscore")
 
     def get_score(self) -> int:
@@ -95,12 +92,16 @@ class ScoreManager:
             try:
                 with open(self.save_path, "r") as f:
                     self.leaderboard = json.load(f)
+                # Ensure leaderboard is sorted by score (descending)
+                self.leaderboard.sort(key=lambda x: x["score"], reverse=True)
             except:
                 self.leaderboard = []
+        else:
+            self.leaderboard = []
 
     def _save_leaderboard(self):
         """
-        Saves the current highscore to a JSON file.
+        Saves the current leaderboard to a JSON file.
         
         If the directory doesn't exist, it will be created before attempting to write.
         """
