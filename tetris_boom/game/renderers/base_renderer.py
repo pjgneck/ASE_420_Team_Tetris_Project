@@ -1,6 +1,6 @@
 import pygame
 
-from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW, LIGHT_THEME, DARK_THEME, DARK_BLOCK_COLORS, DARK_BLOCK_OUTLINE, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
+from game.data import *
 from game.modes.base_mode import GameMode
 
 class BaseRenderer:
@@ -133,4 +133,3 @@ class BaseRenderer:
 
             entry_text = self.font.render(f"{i}. {entry['name']} - {entry['score']}", True, color)
             self.screen.blit(entry_text, entry_text.get_rect(center=(center_x, leaderboard_start_y + 25 * i)))
- 
