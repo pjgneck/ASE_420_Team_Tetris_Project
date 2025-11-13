@@ -58,11 +58,16 @@ class GameController:
             self.state.next_blocks.append(self.block_factory.create_block())
 
         self.last_score_checkpoint = 0
+        self.player_name ="" 
+
+        self.dark_mode= False
 
     def _initialize_starting_mode(self):
         """Initialize the starting game mode using a factory method."""
         self.game_mode = self._create_mode(TetrisMode)
+        dark_mode=self.dark_mode
         self.sound_manager.play("music_1")
+        self.dark_mode = False
 
     def _create_mode(self, mode_class):
         """Factory method to create any game mode with proper dependencies."""
@@ -98,7 +103,7 @@ class GameController:
 
     def _initialize_player(self):
         """Initialize player-specific settings."""
-        Overlay.get_player_name(
+        self.player_name = Overlay.get_player_name(
             screen=self.screen,
             renderer=self.game_mode.renderer
         )
