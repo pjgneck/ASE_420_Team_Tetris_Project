@@ -120,33 +120,29 @@ class ScoreManager:
         # Ensure all entries are valid
         leaderboard = [entry for entry in leaderboard if isinstance(entry, dict) and "name" in entry and "score" in entry]
 
-        # Check if this exact score from this player already exists in the leaderboard
-        already_exists = any(
-            entry["name"] == player_name and entry["score"] == player_score 
-            for entry in leaderboard
-        )
-    
-        # If it already exists, don't add it again
-        if already_exists:
-            return
-        # Insert the new score once
-        inserted = False
-        new_leaderboard = []
-        for entry in leaderboard:
-            if not inserted and player_score > entry["score"]:
-                new_leaderboard.append({"name": player_name, "score": player_score})
-                inserted = True
-            new_leaderboard.append(entry)
+        # Check if player already exists in leaderboard
+        existing_player_index = None
+        for i, entry in enumerate(leaderboard):
+            if entry["name"] == player_name:
+                existing_player_index = i
+                break
 
-        # If not inserted yet, append at the end
-        if not inserted:
-            new_leaderboard.append({"name": player_name, "score": player_score})
+        # If player exists, update their score if current score is higher
+        if existing_player_index is not None:
+            if player_score > leaderboard[existing_player_index]["score"]:
+                leaderboard[existing_player_index]["score"] = player_score
+        else:
+            # Player doesn't exist, add new entry
+            leaderboard.append({"name": player_name, "score": player_score})
 
+        # Sort by score (descending)
+        leaderboard.sort(key=lambda x: x["score"], reverse=True)
+        
         # Keep only top 3
-        new_leaderboard = new_leaderboard[:3]
+        leaderboard = leaderboard[:3]
 
         # Save back to file
-        self.leaderboard = new_leaderboard
+        self.leaderboard = leaderboard
         self._save_leaderboard()
 
     def get_leaderboard(self):
