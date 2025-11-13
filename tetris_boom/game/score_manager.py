@@ -33,18 +33,6 @@ class ScoreManager:
         :param lines_cleared: The number of lines cleared by the player in the current move.
         """
         self.score += lines_cleared ** 2  # Example: 1 line = 1 point, 2 lines = 4 points, etc.
-
-        self.sound_manager.play("place_block")
-
-        if lines_cleared > 0:
-            if lines_cleared > 10:
-                line_clear_sound = "easter_egg"
-            elif lines_cleared > 3:
-                line_clear_sound = "line_clear_2"
-            else:
-                line_clear_sound = "line_clear_1"
-            
-            self.sound_manager.play(line_clear_sound)
         
         if self.score > self.highscore_data["highscore"]:
             self.highscore_data = {
@@ -52,7 +40,6 @@ class ScoreManager:
                 "highscore": self.score
             }
             self._save_highscore()  # Save the new highscore
-            self.sound_manager.play("highscore")
 
     def get_score(self) -> int:
         """

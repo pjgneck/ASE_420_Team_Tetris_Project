@@ -125,9 +125,12 @@ class GameController:
         while is_running:
             # Event handling
             for event in pygame.event.get():
-                quit_command = self.game_mode.handle_input(event)
-                if event.type == pygame.QUIT or quit_command == "quit":
+                if event.type == pygame.QUIT:
                     is_running = False
+                else:
+                    quit_command = self.game_mode.handle_input(event)
+                    if quit_command == "quit":
+                        is_running = False  
 
             # Update the game state
             self.game_mode.update()
