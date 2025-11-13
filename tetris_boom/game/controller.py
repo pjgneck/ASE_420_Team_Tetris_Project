@@ -114,6 +114,8 @@ class GameController:
         self.game_mode = self._create_mode(new_mode_class)
         self.sound_manager.play("switch_modes")
 
+        self.state.score_manager.set_player_name(player_name)
+
     def run_game_loop(self):
         """Main game loop handling input, updates, and rendering."""
         is_running = True
@@ -127,10 +129,15 @@ class GameController:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     is_running = False
-                else:
-                    quit_command = self.game_mode.handle_input(event)
-                    if quit_command == "quit":
-                        is_running = False  
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_t:
+                        self.dark_mode = not self.dark_mode
+                        self.game_mode.renderer.toggle_theme()
+                
+                quit_command = self.game_mode.handle_input(event)
+                if quit_command == "quit":
+                    is_running = False
+                
 
             # Update the game state
             self.game_mode.update()
@@ -139,6 +146,7 @@ class GameController:
             current_score = self.state.score_manager.get_score()
             if current_score // 5 > self.last_score_checkpoint:
                 self.last_score_checkpoint = current_score // 5
+                dark_mode_active = self.game_mode.renderer.dark_mode
                 if isinstance(self.game_mode, TetrisMode):
                     self.switch_mode(BlockBlastMode)
                 else:
@@ -147,5 +155,6 @@ class GameController:
             # Render
             self.game_mode.render()
             self.clock.tick(FPS)
-
+            
+            
         pygame.quit()
