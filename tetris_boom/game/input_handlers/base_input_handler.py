@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
 
+from game.modes.base_mode import GameMode
+
 class BaseInputHandler(ABC):
-    def __init__(self, game_mode):
+    def __init__(self, game_mode: GameMode):
         """
         Base input handler for all game modes.
         """
         self.game_mode = game_mode
         self.state = game_mode.state
         self.board = self.state.board
+        self.sound_manager = self.state.sound_manager
 
     @abstractmethod
     def handle(self, event):

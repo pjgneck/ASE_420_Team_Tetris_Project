@@ -1,11 +1,13 @@
 import pygame
 
-from game.data import BLACK, BLOCK_SIZE, GRAY, ORANGE, YELLOW, LIGHT_THEME, DARK_THEME, DARK_BLOCK_COLORS, DARK_BLOCK_OUTLINE, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
+from game.data import *
+from game.modes.base_mode import GameMode
 
 class BaseRenderer:
-    def __init__(self, screen, game_mode, dark_mode=False):
+    def __init__(self, screen: pygame.Surface, game_mode: GameMode, dark_mode=False):
         self.screen = screen
         self.game_mode = game_mode
+        self.dark_mode = False
         self.state = game_mode.state
         self.board = self.state.board
 
@@ -18,13 +20,24 @@ class BaseRenderer:
         self.dark_mode = dark_mode
         self.theme = DARK_THEME if dark_mode else LIGHT_THEME
 
-    def toggle_theme(self):
-        """
-        Switch between dark and light modes.
-        """
-        self.dark_mode = not self.dark_mode
-        self.theme = DARK_THEME if self.dark_mode else LIGHT_THEME
+        self.sound_manager = self.state.sound_manager
+        self._load_theme()
 
+    def _load_theme(self):
+        """Load color them based on settings"""
+        if self.dark_mode:
+            self.theme = DARK_THEME
+        else:
+            self.theme = LIGHT_THEME
+
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+        self._load_theme()
+
+    def set_theme(self, dark_mode: bool):
+        self.dark_mode = dark_mode
+        self._load_theme()
+    
     def _draw_background(self):
         """
         Fill screen with background color
@@ -120,4 +133,3 @@ class BaseRenderer:
 
             entry_text = self.font.render(f"{i}. {entry['name']} - {entry['score']}", True, color)
             self.screen.blit(entry_text, entry_text.get_rect(center=(center_x, leaderboard_start_y + 25 * i)))
- 

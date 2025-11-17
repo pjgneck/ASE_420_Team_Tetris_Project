@@ -1,15 +1,17 @@
 import pygame
 from game.modes.base_mode import GameMode
+from game.renderers.base_renderer import BaseRenderer
+from game.gamestate import GameState
 
 class TetrisMode(GameMode):
-    def __init__(self, screen: pygame.Surface, input_handler, renderer, state, dark_mode=False):
+    def __init__(self, screen: pygame.Surface, state: GameState, renderer: BaseRenderer, dark_mode=False):
         """
         :param state: Shared GameState instance containing board, score, block pool, etc.
         """
-        self.state = state  # Shared game state
-        self.input_handler = input_handler(self)
-        self.renderer = renderer(screen, self, dark_mode=dark_mode)
         self.screen = screen
+        self.state = state  # Shared game state
+        self.renderer = renderer
+        self.input_handler = None # Will be injected after creation
         self.game_over = False
         self.gravity = 1.5
         self.fall_timer = 0.0
@@ -58,7 +60,8 @@ class TetrisMode(GameMode):
 
         # Check game over
         if not self.state.board.is_valid_position(self.state.current_block):
-            self.game_over = True
+            self._handle_game_over()
+
 
     def handle_input(self, event):
         """

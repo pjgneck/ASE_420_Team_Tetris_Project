@@ -1,9 +1,10 @@
 import pygame
 from game.data import BLOCK_SIZE
 from game.input_handlers.base_input_handler import BaseInputHandler
+from game.modes.base_mode import GameMode
 
 class BlockBlastInputHandler(BaseInputHandler):
-    def __init__(self, blockblast_mode):
+    def __init__(self, blockblast_mode: GameMode):
         super().__init__(blockblast_mode)
         self.blockblast_mode = blockblast_mode
         self.dragging_block = None
@@ -14,10 +15,11 @@ class BlockBlastInputHandler(BaseInputHandler):
     def handle(self, event):
         renderer = self.blockblast_mode.renderer
         
-        # Quit game if game over
-        if event.type == pygame.KEYDOWN:
-            if self.blockblast_mode.game_over and event.key == pygame.K_q:
+        # Stop processing input if game is over
+        if self.blockblast_mode.game_over:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 return "quit"
+            return  # Ignore all other input when game over
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             self._start_drag(event, renderer)

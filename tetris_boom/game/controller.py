@@ -9,48 +9,152 @@ from game.renderers.blockblast_renderer import BlockBlastRenderer
 from game.gamestate import GameState
 from game.board import Board
 from game.block_factory import BlockFactory
+from game.sound_manager import SoundManager
+from game.score_manager import ScoreManager
 
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
-FPS = 30  # Defined FPS for clarity
+FPS = 30
+
 
 class GameController:
+    """
+    Manages the main game loop, initialization of core components, 
+    switching between game modes, handling player input, and rendering.
+    Responsible for setting up pygame, sound, score, board, block factory, 
+    game state, and managing transitions between Tetris and BlockBlast modes.
+    """
+
     def __init__(self):
-        """
-        Initializes the game controller, setting up the screen, clock, and game mode.
-        """
+        self._initialize_pygame()
+        self._initialize_core_components()
+        self._initialize_starting_mode()
+        self._initialize_player()
+
+    def _initialize_pygame(self):
+        """Initialize pygame and display settings."""
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Set up the screen with given dimensions
-        self.clock = pygame.time.Clock()  # Clock for controlling the frame rate
-        pygame.display.set_caption("Tetris BOOM!")  # Set the window title
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.clock = pygame.time.Clock()
+        pygame.display.set_caption("Tetris BOOM!")
 
-        board = Board()
-        block_factory = BlockFactory()
+    def _initialize_core_components(self):
+        """Initialize all core game components."""
+        self.sound_manager = SoundManager()
+        self.score_manager = ScoreManager(sound_manager=self.sound_manager)
+        self.board = Board()
+        self.block_factory = BlockFactory()
 
-        self.state = GameState(board=board, block_factory=block_factory)  # Shared game state instance
+        self.state = GameState(
+            board=self.board,
+            block_factory=self.block_factory,
+            score_manager=self.score_manager,
+            sound_manager=self.sound_manager
+        )
+
+        # Initialize next_blocks for BlockBlast mode
+        self.state.next_blocks = []
+        for _ in range(3):
+            self.state.next_blocks.append(self.block_factory.create_block())
 
         self.last_score_checkpoint = 0
+        self.player_name ="" 
 
         self.dark_mode= False
 
-        # Initialize the game mode with required dependencies
-        self.game_mode = TetrisMode(
+    def _initialize_starting_mode(self):
+        """Initialize the starting game mode using a factory method."""
+        self.game_mode = self._create_mode(TetrisMode)
+        dark_mode=self.dark_mode
+        self.sound_manager.play("music_1")
+        self.dark_mode = False
+
+    def _create_mode(self, mode_class):
+        """Factory method to create any game mode with proper dependencies."""
+        # Create renderer first, then mode, then input handler
+        if mode_class == TetrisMode:
+            mode = TetrisMode(
+                screen=self.screen, 
+                state=self.state,
+                renderer=None  # Will set after creation
+                
+            )
+            renderer = TetrisRenderer(
+                screen=self.screen, 
+                game_mode=mode
+            )
+            mode.renderer = renderer
+            input_handler = TetrisInputHandler(mode)
+        
+        else:  # BlockBlastMode
+            mode = BlockBlastMode(
+                screen=self.screen, 
+                state=self.state, 
+                renderer=None  # Will set after creation
+            )
+            renderer = BlockBlastRenderer(
+                screen=self.screen, 
+                game_mode=mode
+            )
+            mode.renderer = renderer
+            input_handler = BlockBlastInputHandler(mode)
+
+        mode.input_handler = input_handler
+        return mode
+
+    def _initialize_player(self):
+        """Initialize player-specific settings."""
+        self.player_name = Overlay.get_player_name(
             screen=self.screen,
-            input_handler=TetrisInputHandler,
-            renderer=TetrisRenderer,
+            renderer=self.game_mode.renderer
+        )
+        # Set the player name in the score manager
+        from game.globals import get_player_name
+        self.state.score_manager.set_player_name(get_player_name())
+
+    def switch_mode(self, new_mode_class, input_handler_class, renderer_class, dark_mode):
+        """
+        Switch to a new game mode with specified components.
+        :param new_mode_class: The class of the mode to switch to (TetrisMode or BlockBlastMode)
+        :param input_handler_class: The input handler class for the new mode
+        :param renderer_class: The renderer class for the new mode
+        :param dark_mode: Boolean indicating if dark mode is active
+        """
+        if self.state.current_block is None:
+            self.state.current_block = self.state.block_factory.create_block()
+
+        mode = new_mode_class(
+            screen=self.screen,
             state=self.state,
-            dark_mode=self.dark_mode
+            renderer=None,
+            dark_mode=dark_mode
         )
 
-        player_name = Overlay.get_player_name(
+        renderer = renderer_class(
             screen=self.screen,
-            renderer=TetrisRenderer(self.screen, self.game_mode)
+            game_mode = mode,
+            dark_mode=dark_mode
         )
 
-        self.state.score_manager.set_player_name(player_name)
+        mode.renderer = renderer
+
+        input_handler = input_handler_class(mode)
+        mode.input_handler = input_handler
+
+        self.game_mode = mode
+        
+        self.sound_manager.play("switch_modes")
+        # Set the player name in the score manager
+        from game.globals import get_player_name
+        self.state.score_manager.set_player_name(get_player_name())
 
     def run_game_loop(self):
+        """Main game loop handling input, updates, and rendering."""
         is_running = True
+
+        self.sound_manager.stop("music_1")
+        self.sound_manager.play("music_1_loop", loop=True)
+        self.sound_manager.play("game_start")
 
         while is_running:
             # Event handling
@@ -74,7 +178,7 @@ class GameController:
             current_score = self.state.score_manager.get_score()
             if current_score // 5 > self.last_score_checkpoint:
                 self.last_score_checkpoint = current_score // 5
-                dark_mode_active = self.game_mode.renderer.dark_mode
+                dark_mode_active = self.dark_mode
                 if isinstance(self.game_mode, TetrisMode):
                     self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer, dark_mode_active)
                 else:
@@ -86,21 +190,3 @@ class GameController:
             
             
         pygame.quit()
-
-    def switch_mode(self, new_mode_class, input_handler_class, renderer_class, dark_mode):
-        """
-        Placeholder for switching between game modes (if applicable in future).
-        :param new_mode_class: The class of the mode to switch to (TetrisMode or BlockBlastMode)
-        :param input_handler_class: The input handler class for the new mode
-        :param renderer_class: The renderer class for the new mode
-        """
-        if self.state.current_block is None:
-            self.state.current_block = self.state.block_factory.create_block()
-
-        self.game_mode = new_mode_class(
-            screen=self.screen,
-            input_handler=input_handler_class,
-            renderer=renderer_class,
-            state=self.state,
-            dark_mode=dark_mode
-        )

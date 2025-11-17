@@ -1,9 +1,10 @@
 import pygame
 from game.renderers.base_renderer import BaseRenderer
 from game.data import WHITE, BLOCK_SIZE, DARK_BLOCK_COLORS, DARK_BLOCK_OUTLINE, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
+from game.modes.base_mode import GameMode
 
 class BlockBlastRenderer(BaseRenderer):
-    def __init__(self, screen, game_mode, dark_mode=False):
+    def __init__(self, screen: pygame.Surface, game_mode: GameMode, dark_mode=False):
         super().__init__(screen, game_mode, dark_mode)
 
     def render(self):
