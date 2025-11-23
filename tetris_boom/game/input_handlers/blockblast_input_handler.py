@@ -84,7 +84,15 @@ class BlockBlastInputHandler(BaseInputHandler):
         self.dragging_block.y = grid_y
 
         if self.is_valid(self.dragging_block):
-            self.freeze_block(self.dragging_block)
+            block = self.dragging_block
+            if block.is_bomb:
+                self.board.explode_bomb(block)
+                self.sound_manager.play("bomb")
+                lines_cleared = self.board.break_lines()
+                self.state.score_manager.add_points(lines_cleared)
+            else:
+                self.freeze_block(self.dragging_block)
+            
             self.state.next_blocks.remove(self.dragging_block)
             self.state.next_blocks.append(self.state.block_factory.create_block())
         else:

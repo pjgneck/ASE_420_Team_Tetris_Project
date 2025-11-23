@@ -89,3 +89,43 @@ class Board:
                 if self.is_valid_position(block):
                     return True
         return False
+
+    def explode_area(self, center_x: int, center_y: int, radius: int = 1):
+        """
+        Clears an area centered on the given coordinates.
+        The area is (2*radius + 1) x (2*radius + 1).
+        
+        :param center_x: X coordinate of explosion center
+        :param center_y: Y coordinate of explosion center
+        :param radius: Explosion radius (default 1 for 3x3 area)
+        :return: Number of blocks cleared
+        """
+        blocks_cleared = 0
+        for dy in range(-radius, radius + 1):
+            for dx in range(-radius, radius + 1):
+                x = center_x + dx
+                y = center_y + dy
+                if 0 <= x < self.cols and 0 <= y < self.rows:
+                    if self.grid[y][x] > 0:
+                        blocks_cleared += 1
+                    self.grid[y][x] = 0
+        return blocks_cleared
+
+    def explode_bomb(self, block):
+        """
+        Explodes a bomb block, clearing areas around each cell in the block.
+        
+        :param block: The bomb block to explode
+        :return: Total number of blocks cleared
+        """
+        if not block.is_bomb:
+            return 0
+        
+        explosion_radius = block.get_explosion_radius()
+        total_cleared = 0
+        
+        for center_x, center_y in block.get_board_positions():
+            if 0 <= center_y < self.rows and 0 <= center_x < self.cols:
+                total_cleared += self.explode_area(center_x, center_y, explosion_radius)
+        
+        return total_cleared

@@ -2,6 +2,7 @@ import pygame
 from game.modes.base_mode import GameMode
 from game.renderers.base_renderer import BaseRenderer
 from game.gamestate import GameState
+from game.data import BOMB_SPEED_MULTIPLIER
 
 DEFAULT_GRAVITY = 1.5
 SOFT_DROP_SPEED_MULTIPLIER = 5
@@ -29,6 +30,9 @@ class TetrisMode(GameMode):
         self.fall_timer += dt
 
         speed_multiplier = SOFT_DROP_SPEED_MULTIPLIER if getattr(self, "pressing_down", False) else 1
+        if self.state.current_block.is_bomb:
+            speed_multiplier *= BOMB_SPEED_MULTIPLIER
+        
         drop_interval = 1.0 / (self.gravity * speed_multiplier)
 
         if self.fall_timer >= drop_interval:
@@ -50,7 +54,13 @@ class TetrisMode(GameMode):
         """
         Locks the block in place and clears any full lines.
         """
-        self.state.board.freeze(self.state.current_block)
+        block = self.state.current_block
+        
+        if block.is_bomb:
+            self.state.board.explode_bomb(block)
+            self.state.sound_manager.play("bomb")
+        else:
+            self.state.board.freeze(block)
 
         lines_cleared = self.state.board.break_lines()
         self.state.score_manager.add_points(lines_cleared)
