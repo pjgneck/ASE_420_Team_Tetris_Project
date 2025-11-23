@@ -66,6 +66,7 @@ class GameController:
     def _initialize_starting_mode(self):
         """Initialize the starting game mode using a factory method."""
         self.game_mode = self._create_mode(TetrisMode)
+        pygame.mouse.set_visible(self.game_mode.should_show_cursor())
         self.sound_manager.play("music_1")
         self.dark_mode = False
 
@@ -167,6 +168,8 @@ class GameController:
         mode.input_handler = input_handler
 
         self.game_mode = mode
+        
+        pygame.mouse.set_visible(mode.should_show_cursor())
         
         self.sound_manager.play("switch_modes")
         from game.globals import get_player_name

@@ -81,3 +81,6 @@ class TetrisMode(GameMode):
         Spawns a new block by creating it via the factory.
         """
         self.state.current_block = self.state.block_factory.create_block()
+
+    def should_show_cursor(self) -> bool:
+        return False

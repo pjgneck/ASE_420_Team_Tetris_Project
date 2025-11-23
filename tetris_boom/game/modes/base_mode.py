@@ -32,6 +32,12 @@ class GameMode(ABC):
         """
         pass
 
+    def should_show_cursor(self) -> bool:
+        """
+        Returns whether the mouse cursor should be visible in this mode.
+        """
+        return True
+
     def _handle_game_over(self, is_game_over: bool=True):
         """
         Handle game over state transitions consistently across all modes.
