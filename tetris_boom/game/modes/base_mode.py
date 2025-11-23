@@ -42,9 +42,7 @@ class GameMode(ABC):
         was_game_over = getattr(self, 'game_over', False)
         self.game_over = is_game_over
         
-        # Only trigger sound when transitioning from not-game-over to game-over
         if not was_game_over and self.game_over:
-            # Stop background music and play game over sound
             sound_manager = getattr(self.renderer, 'sound_manager', None)
             if sound_manager:
                 sound_manager.stop("music_1_loop")

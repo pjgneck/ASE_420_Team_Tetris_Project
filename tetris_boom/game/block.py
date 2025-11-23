@@ -12,11 +12,10 @@ class Block:
         self.x = x
         self.y = y
 
-        # Choose a random shape and color (index-based)
         self.shape = random.choices(range(len(SHAPES)), weights=SHAPE_WEIGHTS, k=1)[0]
-        self.color_index = random.randint(1, len(BLOCK_COLORS) - 1) # 0 is reservered for empty space
+        self.color_index = random.randint(1, len(BLOCK_COLORS) - 1)
 
-        self.rotation = 0  # Index of the current rotation state
+        self.rotation = 0
 
     def move(self, dx: int, dy: int):
         """
