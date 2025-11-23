@@ -1,14 +1,14 @@
 import os
 import pygame
+from game.resource_path import resource_path
 
 class SoundManager:
     def __init__(self):
         """
         Initializes the sound manager and loads all necessary sounds.
         """
-        base_dir = os.path.dirname(__file__)
-        self.sound_path = os.path.join(base_dir, "..", "assets", "sounds")
-        self.sounds = {}  # Dictionary to store loaded sounds
+        self.sound_path = resource_path("assets/sounds")
+        self.sounds = {}
 
         self._load_sounds()
         self._set_default_volumes()
@@ -47,13 +47,10 @@ class SoundManager:
         sound = self.sounds[sound_name]
         loops = -1 if loop else 0
         
-        # Special handling for music to ensure it doesn't duplicate
         if sound_name in ["music_1", "music_1_loop"] and loop:
-            # Stop any currently playing music before starting new loop
             self._stop_all_music()
             sound.play(loops=-1)
         else:
-            # Let pygame automatically handle channel allocation for all other sounds
             sound.play(loops=loops)
 
     def stop(self, sound_name: str):

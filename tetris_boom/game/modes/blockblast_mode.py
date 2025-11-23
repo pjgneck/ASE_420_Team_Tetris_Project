@@ -2,6 +2,7 @@ import pygame
 from game.modes.base_mode import GameMode
 from game.gamestate import GameState
 from game.renderers.base_renderer import BaseRenderer
+from game.data import NEXT_BLOCKS_COUNT
 
 class BlockBlastMode(GameMode):
     def __init__(self, screen: pygame.Surface, state: GameState, renderer: BaseRenderer, dark_mode=False):
@@ -9,13 +10,13 @@ class BlockBlastMode(GameMode):
         :param state: Shared GameState instance containing board, score, etc.
         """
         self.screen = screen
-        self.state = state  # Shared game state
+        self.state = state
         self.renderer = renderer
-        self.input_handler = None # Will be injected after creation
+        self.input_handler = None
         self.game_over = False
 
         if not self.state.next_blocks:
-            for _ in range(3):
+            for _ in range(NEXT_BLOCKS_COUNT):
                 self.state.next_blocks.append(self.state.block_factory.create_block())
 
     def update(self):
@@ -28,7 +29,6 @@ class BlockBlastMode(GameMode):
             for block in self.state.next_blocks
         )
 
-        # Check game over
         if not has_space:
             self._handle_game_over()
 
@@ -36,7 +36,6 @@ class BlockBlastMode(GameMode):
         """
         Handle input events (mouse drag-and-drop for blocks).
         """
-        # Pass event to input handler
         return self.input_handler.handle(event)
 
     def render(self):
@@ -46,4 +45,4 @@ class BlockBlastMode(GameMode):
         self.renderer.render()
 
     def spawn_block(self):
-        pass  # No falling block in BlockBlast
+        pass

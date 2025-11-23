@@ -15,13 +15,12 @@ subprocess.check_call([sys.executable, "build.py"])
 dist_dir = "dist"
 exe_name = "TetrisBOOM"  # match the name in build.py
 
-# Determine full path and extension
 exe_file = os.path.join(dist_dir, exe_name)
 if platform.system() == "Windows":
     exe_file += ".exe"
 else:
-    # Make it executable on Linux
-    os.chmod(exe_file, 0o755)
+    if os.path.exists(exe_file):
+        os.chmod(exe_file, 0o755)
 
 # Step 4: Run the executable
 print(f"\n🔹 Running {exe_file}...\n")

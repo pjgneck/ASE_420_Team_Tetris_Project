@@ -1,28 +1,34 @@
 import os
 import json
 import copy
+import sys
 
 from game.sound_manager import SoundManager
+from game.resource_path import resource_path
 
 class ScoreManager:
     def __init__(self, sound_manager: SoundManager):
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        print(BASE_DIR)
-        save_path = os.path.join(BASE_DIR, "assets", "highscore.json")
-        print(save_path)
-        
         """
         Initializes the score manager, loading the highscore from a file if it exists.
 
-        :param save_path: The file path to save/load the highscore data.
+        :param sound_manager: The sound manager instance for playing sounds.
         """
-        self.leaderboard = []  # List of top scores
-        self.score = 0  # Current score of the game session
-        self.player_name = ""  # Name of the current player
-        self.save_path = save_path  # Path to the highscore file
-        self._load_leaderboard()  # Load the leaderboard from file (if exists)
+        if getattr(sys, 'frozen', False):
+            home_dir = os.path.expanduser("~")
+            save_dir = os.path.join(home_dir, ".tetris_boom")
+            os.makedirs(save_dir, exist_ok=True)
+            save_path = os.path.join(save_dir, "highscore.json")
+        else:
+            save_path = resource_path("assets/highscore.json")
+        self.leaderboard = []
+        self.score = 0
+        self.player_name = ""
+        self.save_path = save_path
+        self._load_leaderboard()
 
         self.sound_manager = sound_manager
+        self.initial_highscore = self.get_highscore()
+        self.highscore_sound_played = False
 
     def set_player_name(self, name: str):
         """
@@ -38,7 +44,7 @@ class ScoreManager:
 
         :param lines_cleared: The number of lines cleared by the player in the current move.
         """
-        self.score += lines_cleared ** 2  # Example: 1 line = 1 point, 2 lines = 4 points, etc.
+        self.score += lines_cleared ** 2
 
         self.sound_manager.play("place_block")
 
@@ -52,10 +58,11 @@ class ScoreManager:
             
             self.sound_manager.play(line_clear_sound)
         
-        # Check if current score is higher than the highest score in leaderboard
-        highest_score = self.get_highscore()
-        if self.score > highest_score:
+        if (self.initial_highscore > 0 and 
+            not self.highscore_sound_played and 
+            self.score > self.initial_highscore):
             self.sound_manager.play("highscore")
+            self.highscore_sound_played = True
 
     def get_score(self) -> int:
         """
@@ -70,13 +77,17 @@ class ScoreManager:
         Resets the current score to zero. Highscore remains unchanged.
         """
         self.score = 0
+        self.initial_highscore = self.get_highscore()
+        self.highscore_sound_played = False
 
     def get_highscore(self):
         """
-        Returns the highest score in the leaderboard
+        Returns the highest score in the leaderboard (excluding scores of 0)
         """
         if self.leaderboard:
-            return self.leaderboard[0]["score"]
+            valid_scores = [entry["score"] for entry in self.leaderboard if entry.get("score", 0) > 0]
+            if valid_scores:
+                return max(valid_scores)
         return 0
     
     def get_highscore_player(self):
@@ -92,14 +103,18 @@ class ScoreManager:
         Loads the leaderboard from a JSON file, if it exists.
 
         The highscore will be set to 0 if the file doesn't exist or the data is corrupted.
+        Scores of 0 are filtered out.
         """
         if os.path.exists(self.save_path):
             try:
                 with open(self.save_path, "r") as f:
                     self.leaderboard = json.load(f)
-                # Ensure leaderboard is sorted by score (descending)
+                self.leaderboard = [
+                    entry for entry in self.leaderboard 
+                    if isinstance(entry, dict) and "name" in entry and "score" in entry and entry["score"] > 0
+                ]
                 self.leaderboard.sort(key=lambda x: x["score"], reverse=True)
-            except:
+            except (json.JSONDecodeError, IOError, OSError, KeyError, ValueError):
                 self.leaderboard = []
         else:
             self.leaderboard = []
@@ -110,7 +125,6 @@ class ScoreManager:
         
         If the directory doesn't exist, it will be created before attempting to write.
         """
-        # Ensure the directory exists
         os.makedirs(os.path.dirname(self.save_path), exist_ok=True)
         with open(self.save_path, "w") as f:
             json.dump(self.leaderboard, f, indent=4)
@@ -119,34 +133,31 @@ class ScoreManager:
         player_name = self.player_name.strip() or "Player"
         player_score = self.get_score()
 
-        # Make a deepcopy of the current leaderboard
+        if player_score == 0:
+            return
+
         leaderboard = copy.deepcopy(self.leaderboard)
 
-        # Ensure all entries are valid
-        leaderboard = [entry for entry in leaderboard if isinstance(entry, dict) and "name" in entry and "score" in entry]
+        leaderboard = [
+            entry for entry in leaderboard 
+            if isinstance(entry, dict) and "name" in entry and "score" in entry and entry["score"] > 0
+        ]
 
-        # Check if player already exists in leaderboard
         existing_player_index = None
         for i, entry in enumerate(leaderboard):
             if entry["name"] == player_name:
                 existing_player_index = i
                 break
 
-        # If player exists, update their score if current score is higher
         if existing_player_index is not None:
             if player_score > leaderboard[existing_player_index]["score"]:
                 leaderboard[existing_player_index]["score"] = player_score
         else:
-            # Player doesn't exist, add new entry
             leaderboard.append({"name": player_name, "score": player_score})
 
-        # Sort by score (descending)
         leaderboard.sort(key=lambda x: x["score"], reverse=True)
-        
-        # Keep only top 3
         leaderboard = leaderboard[:3]
 
-        # Save back to file
         self.leaderboard = leaderboard
         self._save_leaderboard()
 

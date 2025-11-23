@@ -12,6 +12,8 @@ MAGENTA = (180, 34, 122)
 DARK_GRAY = (40, 40, 40)
 LIGHT_GRAY = (200, 200, 200)
 BLOCK_SIZE = 20
+BLOCK_GRID_SIZE = 4  # Blocks are defined in a 4x4 grid
+NEXT_BLOCKS_COUNT = 3  # Number of next blocks in BlockBlast mode
 
 BRIGHT_PURPLE = (200, 100, 255)
 BRIGHT_TEAL = (100, 255, 255)

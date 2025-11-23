@@ -32,6 +32,12 @@ class GameMode(ABC):
         """
         pass
 
+    def should_show_cursor(self) -> bool:
+        """
+        Returns whether the mouse cursor should be visible in this mode.
+        """
+        return True
+
     def _handle_game_over(self, is_game_over: bool=True):
         """
         Handle game over state transitions consistently across all modes.
@@ -42,9 +48,7 @@ class GameMode(ABC):
         was_game_over = getattr(self, 'game_over', False)
         self.game_over = is_game_over
         
-        # Only trigger sound when transitioning from not-game-over to game-over
         if not was_game_over and self.game_over:
-            # Stop background music and play game over sound
             sound_manager = getattr(self.renderer, 'sound_manager', None)
             if sound_manager:
                 sound_manager.stop("music_1_loop")

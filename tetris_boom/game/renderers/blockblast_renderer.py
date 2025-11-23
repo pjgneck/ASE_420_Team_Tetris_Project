@@ -36,11 +36,9 @@ class BlockBlastRenderer(BaseRenderer):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         board = self.state.board
 
-        # Mouse in grid coords (round to nearest cell)
         grid_x = round((mouse_x - self.offset_x) / BLOCK_SIZE)
         grid_y = round((mouse_y - self.offset_y) / BLOCK_SIZE)
 
-        # Occupied cells in block's local 4×4 grid
         shape = block.get_shape()
         cells = [(k // 4, k % 4) for k in shape]
 
@@ -49,11 +47,9 @@ class BlockBlastRenderer(BaseRenderer):
         min_i = min(i for i, j in cells)
         max_i = max(i for i, j in cells)
 
-        # Shift so the cell under the mouse becomes aligned
         grid_x -= min_j
         grid_y -= min_i
 
-        # Clamp based on ALL filled cells
         if grid_x + min_j < 0:
             grid_x = -min_j
         if grid_y + min_i < 0:
@@ -68,7 +64,7 @@ class BlockBlastRenderer(BaseRenderer):
     def draw_block_at_screen_coords(self, block, screen_x, screen_y):
         """Draw a block at arbitrary screen coordinates (for next blocks / drag-and-drop)."""
         colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
-        outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
+        outline_color = self.theme["grid"]
         shape = block.get_shape()
         for i in range(4):
             for j in range(4):
@@ -92,11 +88,8 @@ class BlockBlastRenderer(BaseRenderer):
         block = handler.dragging_block
 
         if block:
-            # Compute snapped preview position
             preview_x, preview_y = self.compute_snapped_preview(block)
 
-            # Only draw the preview if the block isn't already fully on the board
-            # Check if the current x/y matches snapped x/y
             if (block.x != preview_x) or (block.y != preview_y):
                 colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
                 outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
@@ -131,11 +124,9 @@ class BlockBlastRenderer(BaseRenderer):
         if block:
             grid_x, grid_y = self.compute_snapped_preview(block)
 
-            # Convert to screen coordinates
             screen_x = self.offset_x + grid_x * BLOCK_SIZE
             screen_y = self.offset_y + grid_y * BLOCK_SIZE
 
-            # Draw the preview block
             colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
             outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
             shape = block.get_shape()
