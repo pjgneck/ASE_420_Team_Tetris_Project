@@ -24,16 +24,13 @@ class TetrisRenderer(BaseRenderer):
         Works with flat-index SHAPES (0-15 for 4x4 grid or larger for bigger shapes).
         """
         current_block = self.state.current_block
-        shape_indices = current_block.get_shape()  # e.g. [1, 5, 9, 13]
+        shape_indices = current_block.get_shape()
         colors = DARK_BLOCK_COLORS if self.dark_mode else LIGHT_BLOCK_COLORS
-        outline_color = DARK_BLOCK_OUTLINE if self.dark_mode else LIGHT_BLOCK_OUTLINE
 
         for idx in shape_indices:
-            # Compute row and column inside the block's local grid
-            r = idx // 4  # each shape is at most 4 columns wide in the SHAPES definition
+            r = idx // 4
             c = idx % 4
 
-            # Compute actual position on the board
             x = current_block.x + c
             y = current_block.y + r
             color = current_block.get_color(colors)
@@ -47,15 +44,4 @@ class TetrisRenderer(BaseRenderer):
                     BLOCK_SIZE - 2,
                     BLOCK_SIZE - 2
                 ]
-            )
-            pygame.draw.rect(
-                self.screen,
-                outline_color,
-                [
-                    self.offset_x + x * BLOCK_SIZE,
-                    self.offset_y + y * BLOCK_SIZE,
-                    BLOCK_SIZE,
-                    BLOCK_SIZE
-                ],
-                1
             )
