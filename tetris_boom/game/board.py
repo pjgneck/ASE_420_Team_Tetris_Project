@@ -48,22 +48,33 @@ class Board:
 
     def break_lines(self):
         """
-        Checks for full lines and clears them. Newly empty lines are added to the top.
+        Checks for full lines (rows and columns) and clears them.
 
         :return: The number of lines cleared
         """
         lines_cleared = 0
-        new_grid = []
-
-        for row in self.grid:
+        
+        rows_to_clear = []
+        for i, row in enumerate(self.grid):
             if all(cell > 0 for cell in row):
+                rows_to_clear.append(i)
                 lines_cleared += 1
-            else:
-                new_grid.append(row)
-
-        for _ in range(lines_cleared):
+        
+        cols_to_clear = []
+        for j in range(self.cols):
+            if all(self.grid[i][j] > 0 for i in range(self.rows)):
+                cols_to_clear.append(j)
+                lines_cleared += 1
+        
+        new_grid = []
+        for i, row in enumerate(self.grid):
+            if i not in rows_to_clear:
+                new_row = [0 if j in cols_to_clear else cell for j, cell in enumerate(row)]
+                new_grid.append(new_row)
+        
+        for _ in range(len(rows_to_clear)):
             new_grid.insert(0, [0 for _ in range(self.cols)])
-
+        
         self.grid = new_grid
         return lines_cleared
     
