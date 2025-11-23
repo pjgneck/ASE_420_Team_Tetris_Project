@@ -1,4 +1,5 @@
 from game.block import BLOCK_COLORS
+from game.data import BLOCK_GRID_SIZE
 
 class Board:
     def __init__(self, rows=20, cols=10):
@@ -10,8 +11,7 @@ class Board:
         """
         self.rows = rows
         self.cols = cols
-        self.BLOCK_COLORS = BLOCK_COLORS  # Block colors (imported from game.block)
-        # Initialize the grid with 0s (empty spaces)
+        self.BLOCK_COLORS = BLOCK_COLORS
         self.grid = [[0 for _ in range(cols)] for _ in range(rows)]
 
     def is_valid_position(self, block):
@@ -21,16 +21,16 @@ class Board:
         :param block: The block to check
         :return: True if the block's position is valid, otherwise False
         """
-        for i in range(4):  # Iterate over the 4x4 block grid
-            for j in range(4):
-                if i * 4 + j in block.get_shape():  # Check if the cell is part of the block
-                    x = block.x + j  # x-position of the block part
-                    y = block.y + i  # y-position of the block part
+        for i in range(BLOCK_GRID_SIZE):
+            for j in range(BLOCK_GRID_SIZE):
+                if i * BLOCK_GRID_SIZE + j in block.get_shape():
+                    x = block.x + j
+                    y = block.y + i
                     if x < 0 or x >= self.cols or y >= self.rows:
-                        return False  # Block goes out of bounds
+                        return False
                     if y >= 0 and self.grid[y][x] > 0:
-                        return False  # Block overlaps with an existing block
-        return True  # The block's position is valid
+                        return False
+        return True
 
     def freeze(self, block):
         """
@@ -38,13 +38,13 @@ class Board:
 
         :param block: The block to freeze
         """
-        for i in range(4):  # Iterate over the 4x4 block grid
-            for j in range(4):
-                if i * 4 + j in block.get_shape():  # Check if the cell is part of the block
-                    x = block.x + j  # x-position of the block part
-                    y = block.y + i  # y-position of the block part
-                    if y >= 0:  # Avoid updating negative y-values (above the board)
-                        self.grid[y][x] = block.color_index # Set the block's color in the grid
+        for i in range(BLOCK_GRID_SIZE):
+            for j in range(BLOCK_GRID_SIZE):
+                if i * BLOCK_GRID_SIZE + j in block.get_shape():
+                    x = block.x + j
+                    y = block.y + i
+                    if y >= 0:
+                        self.grid[y][x] = block.color_index
 
     def break_lines(self):
         """
@@ -53,20 +53,19 @@ class Board:
         :return: The number of lines cleared
         """
         lines_cleared = 0
-        new_grid = []  # New grid without cleared lines
+        new_grid = []
 
         for row in self.grid:
-            if all(cell > 0 for cell in row):  # Check if the row is full (all cells are filled)
-                lines_cleared += 1  # Increment the number of cleared lines
+            if all(cell > 0 for cell in row):
+                lines_cleared += 1
             else:
-                new_grid.append(row)  # Keep the row if it's not full
+                new_grid.append(row)
 
-        # Add empty rows at the top of the grid to fill the cleared lines
         for _ in range(lines_cleared):
             new_grid.insert(0, [0 for _ in range(self.cols)])
 
-        self.grid = new_grid  # Update the board's grid
-        return lines_cleared  # Return the number of cleared lines
+        self.grid = new_grid
+        return lines_cleared
     
     def has_space_for_block(self, block):
         """

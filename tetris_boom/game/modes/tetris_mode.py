@@ -3,17 +3,21 @@ from game.modes.base_mode import GameMode
 from game.renderers.base_renderer import BaseRenderer
 from game.gamestate import GameState
 
+DEFAULT_GRAVITY = 1.5
+SOFT_DROP_SPEED_MULTIPLIER = 5
+FPS = 30
+
 class TetrisMode(GameMode):
     def __init__(self, screen: pygame.Surface, state: GameState, renderer: BaseRenderer, dark_mode=False):
         """
         :param state: Shared GameState instance containing board, score, block pool, etc.
         """
         self.screen = screen
-        self.state = state  # Shared game state
+        self.state = state
         self.renderer = renderer
-        self.input_handler = None # Will be injected after creation
+        self.input_handler = None
         self.game_over = False
-        self.gravity = 1.5
+        self.gravity = DEFAULT_GRAVITY
         self.fall_timer = 0.0
         self.pressing_down = False
 
@@ -21,22 +25,19 @@ class TetrisMode(GameMode):
         if self.game_over:
             return
 
-        dt = 1 / 30  # time per frame
+        dt = 1 / FPS
         self.fall_timer += dt
 
-        # Drop faster if "down" is pressed
-        speed_multiplier = 5 if getattr(self, "pressing_down", False) else 1
+        speed_multiplier = SOFT_DROP_SPEED_MULTIPLIER if getattr(self, "pressing_down", False) else 1
         drop_interval = 1.0 / (self.gravity * speed_multiplier)
 
         if self.fall_timer >= drop_interval:
             self.fall_timer = 0.0
 
-            # Move block down
             self.state.current_block.move(0, 1)
 
-            # If block is now in an invalid position, revert and lock
             if not self.state.board.is_valid_position(self.state.current_block):
-                self.state.current_block.move(0, -1)  # back to last valid spot
+                self.state.current_block.move(0, -1)
                 self._lock_block()
 
     def _drop_block(self):
@@ -51,14 +52,11 @@ class TetrisMode(GameMode):
         """
         self.state.board.freeze(self.state.current_block)
 
-        # Clear lines & update score
         lines_cleared = self.state.board.break_lines()
         self.state.score_manager.add_points(lines_cleared)
 
-        # Spawn new block
         self.spawn_block()
 
-        # Check game over
         if not self.state.board.is_valid_position(self.state.current_block):
             self._handle_game_over()
 

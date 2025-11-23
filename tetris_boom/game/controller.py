@@ -11,10 +11,12 @@ from game.board import Board
 from game.block_factory import BlockFactory
 from game.sound_manager import SoundManager
 from game.score_manager import ScoreManager
+from game.data import NEXT_BLOCKS_COUNT
 
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
 FPS = 30
+SCORE_CHECKPOINT_INTERVAL = 5
 
 
 class GameController:
@@ -52,9 +54,8 @@ class GameController:
             sound_manager=self.sound_manager
         )
 
-        # Initialize next_blocks for BlockBlast mode
         self.state.next_blocks = []
-        for _ in range(3):
+        for _ in range(NEXT_BLOCKS_COUNT):
             self.state.next_blocks.append(self.block_factory.create_block())
 
         self.last_score_checkpoint = 0
@@ -65,41 +66,33 @@ class GameController:
     def _initialize_starting_mode(self):
         """Initialize the starting game mode using a factory method."""
         self.game_mode = self._create_mode(TetrisMode)
-        dark_mode=self.dark_mode
         self.sound_manager.play("music_1")
         self.dark_mode = False
 
     def _create_mode(self, mode_class):
         """Factory method to create any game mode with proper dependencies."""
-        # Create renderer first, then mode, then input handler
-        if mode_class == TetrisMode:
-            mode = TetrisMode(
-                screen=self.screen, 
-                state=self.state,
-                renderer=None  # Will set after creation
-                
-            )
-            renderer = TetrisRenderer(
-                screen=self.screen, 
-                game_mode=mode
-            )
-            mode.renderer = renderer
-            input_handler = TetrisInputHandler(mode)
+        mode_config = {
+            TetrisMode: (TetrisRenderer, TetrisInputHandler),
+            BlockBlastMode: (BlockBlastRenderer, BlockBlastInputHandler)
+        }
         
-        else:  # BlockBlastMode
-            mode = BlockBlastMode(
-                screen=self.screen, 
-                state=self.state, 
-                renderer=None  # Will set after creation
-            )
-            renderer = BlockBlastRenderer(
-                screen=self.screen, 
-                game_mode=mode
-            )
-            mode.renderer = renderer
-            input_handler = BlockBlastInputHandler(mode)
-
+        renderer_class, input_handler_class = mode_config[mode_class]
+        
+        mode = mode_class(
+            screen=self.screen,
+            state=self.state,
+            renderer=None
+        )
+        
+        renderer = renderer_class(
+            screen=self.screen,
+            game_mode=mode
+        )
+        mode.renderer = renderer
+        
+        input_handler = input_handler_class(mode)
         mode.input_handler = input_handler
+        
         return mode
 
     def _initialize_player(self):
@@ -108,9 +101,41 @@ class GameController:
             screen=self.screen,
             renderer=self.game_mode.renderer
         )
-        # Set the player name in the score manager
         from game.globals import get_player_name
         self.state.score_manager.set_player_name(get_player_name())
+
+    def reset_game(self):
+        """Reset the game to initial state."""
+        self.board.grid = [[0 for _ in range(self.board.cols)] for _ in range(self.board.rows)]
+        self.score_manager.reset()
+        
+        self.state.current_block = self.block_factory.create_block()
+        self.state.next_blocks = []
+        for _ in range(NEXT_BLOCKS_COUNT):
+            self.state.next_blocks.append(self.block_factory.create_block())
+        self.state.game_over = False
+        
+        self.game_mode.game_over = False
+        if hasattr(self.game_mode, 'fall_timer'):
+            self.game_mode.fall_timer = 0.0
+        if hasattr(self.game_mode, 'pressing_down'):
+            self.game_mode.pressing_down = False
+        
+        if hasattr(self.game_mode, 'input_handler'):
+            if hasattr(self.game_mode.input_handler, 'dragging_block'):
+                self.game_mode.input_handler.dragging_block = None
+            if hasattr(self.game_mode.input_handler, 'preview_pos'):
+                self.game_mode.input_handler.preview_pos = None
+        
+        self.last_score_checkpoint = 0
+        
+        self.sound_manager.stop("music_1_loop")
+        self.sound_manager.stop("game_over")
+        self.sound_manager.play("music_1_loop", loop=True)
+        self.sound_manager.play("game_start")
+        
+        dark_mode_active = self.dark_mode
+        self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer, dark_mode_active)
 
     def switch_mode(self, new_mode_class, input_handler_class, renderer_class, dark_mode):
         """
@@ -144,7 +169,6 @@ class GameController:
         self.game_mode = mode
         
         self.sound_manager.play("switch_modes")
-        # Set the player name in the score manager
         from game.globals import get_player_name
         self.state.score_manager.set_player_name(get_player_name())
 
@@ -157,7 +181,6 @@ class GameController:
         self.sound_manager.play("game_start")
 
         while is_running:
-            # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     is_running = False
@@ -166,25 +189,23 @@ class GameController:
                         self.dark_mode = not self.dark_mode
                         self.game_mode.renderer.toggle_theme()
                 
-                quit_command = self.game_mode.handle_input(event)
-                if quit_command == "quit":
+                command = self.game_mode.handle_input(event)
+                if command == "quit":
                     is_running = False
-                
+                elif command == "restart":
+                    self.reset_game()
 
-            # Update the game state
             self.game_mode.update()
 
-            # Check if score reached next multiple of 5
             current_score = self.state.score_manager.get_score()
-            if current_score // 5 > self.last_score_checkpoint:
-                self.last_score_checkpoint = current_score // 5
+            if current_score // SCORE_CHECKPOINT_INTERVAL > self.last_score_checkpoint:
+                self.last_score_checkpoint = current_score // SCORE_CHECKPOINT_INTERVAL
                 dark_mode_active = self.dark_mode
                 if isinstance(self.game_mode, TetrisMode):
                     self.switch_mode(BlockBlastMode, BlockBlastInputHandler, BlockBlastRenderer, dark_mode_active)
                 else:
                     self.switch_mode(TetrisMode, TetrisInputHandler, TetrisRenderer, dark_mode_active)
 
-            # Render
             self.game_mode.render()
             self.clock.tick(FPS)
             
