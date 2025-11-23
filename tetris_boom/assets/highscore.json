@@ -1,14 +1,14 @@
 [
     {
+        "name": "Denver",
+        "score": 77
+    },
+    {
         "name": "cleyton",
         "score": 56
     },
     {
         "name": "crs",
         "score": 48
-    },
-    {
-        "name": "parker",
-        "score": 23
     }
 ]
