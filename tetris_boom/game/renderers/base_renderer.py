@@ -12,7 +12,8 @@ class BaseRenderer:
         self.board = self.state.board
 
         self.offset_x = (screen.get_width() - self.board.cols * BLOCK_SIZE) // 2
-        self.offset_y = (screen.get_height() - self.board.rows * BLOCK_SIZE) // 2
+        SCORE_AREA_HEIGHT = 70
+        self.offset_y = SCORE_AREA_HEIGHT + (screen.get_height() - SCORE_AREA_HEIGHT - self.board.rows * BLOCK_SIZE) // 2
 
         self.font = pygame.font.SysFont('Calibri', 20, True)
         self.large_font = pygame.font.SysFont('Calibri', 35, True)
@@ -65,7 +66,6 @@ class BaseRenderer:
                             BLOCK_SIZE - 2
                         ]
                     )
-                # Draw grid
                 pygame.draw.rect(
                     self.screen,
                     self.theme["grid"],
@@ -106,21 +106,30 @@ class BaseRenderer:
         highscore = score_manager.get_highscore()
         highscore_name = score_manager.get_highscore_player()
 
+        overlay = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
+        overlay.fill((128, 128, 128, 200))
+        self.screen.blit(overlay, (0, 0))
+
         game_over_text = self.large_font.render("Game Over", True, self.theme["game_over"])
         self.screen.blit(game_over_text, game_over_text.get_rect(center=(center_x, 160)))
 
-        if score_manager.player_name == highscore_name and current_score == highscore:
+        if score_manager.player_name == highscore_name and current_score == highscore and current_score > 0:
             congrats_text = self.font.render(f"Congrats {score_manager.player_name}!", True, self.theme["highlight"])
             points_text = self.font.render(f"New High Score: {current_score} points!", True, self.theme["highlight"])
             self.screen.blit(congrats_text, congrats_text.get_rect(center=(center_x, 210)))
             self.screen.blit(points_text, points_text.get_rect(center=(center_x, 240)))
-            leaderboard_start_y = 270
+            quit_y = 275
+            restart_y = 300
+            leaderboard_start_y = 330
         else:
-            press_q_text = self.large_font.render("Press Q", True, self.theme["highlight"])
-            to_quit_text = self.large_font.render("to Quit", True, self.theme["highlight"])
-            self.screen.blit(press_q_text, press_q_text.get_rect(center=(center_x, 200)))
-            self.screen.blit(to_quit_text, to_quit_text.get_rect(center=(center_x, 240)))
+            quit_y = 200
+            restart_y = 225
             leaderboard_start_y = 280
+        
+        quit_text = self.font.render("Press Q to quit", True, self.theme["highlight"])
+        restart_text = self.font.render("Press R to restart", True, self.theme["highlight"])
+        self.screen.blit(quit_text, quit_text.get_rect(center=(center_x, quit_y)))
+        self.screen.blit(restart_text, restart_text.get_rect(center=(center_x, restart_y)))
 
         leaderboard_header = self.font.render("Leaderboard:", True, BLACK)
         self.screen.blit(leaderboard_header, leaderboard_header.get_rect(center=(center_x, leaderboard_start_y)))
