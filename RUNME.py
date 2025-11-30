@@ -3,13 +3,18 @@ import platform
 import subprocess
 import sys
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+build_file = os.path.join(script_dir, "build.py")
+req_file = os.path.join(script_dir, "requirements.txt")
+
+
 # Step 1: Install dependencies
 print("\n🔹 Installing dependencies...\n")
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", req_file])
 
 # Step 2: Run build.py
 print("\n🔹 Building the executable...\n")
-subprocess.check_call([sys.executable, "build.py"])
+subprocess.check_call([sys.executable, build_file])
 
 # Step 3: Locate the executable
 dist_dir = "dist"

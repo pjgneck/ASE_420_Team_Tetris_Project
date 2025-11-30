@@ -1,50 +1,47 @@
-# ASE_420_Team_Tetris_Project 🎮
+# Tetris BOOM 🎮
 
-This repository contains a functional **Tetris game**
-We are expanding the project with new features to improve gameplay and bring something special to our Tetris game.
-
----
-
-## Current Status ✅
-
-- The game is **fully functional**  
-- Includes complete **Tetris gameplay**  
-- Features a **High Score System** to track top performances  
+Welcome to **Tetris BOOM**, a modern and enhanced interpretation of the classic Tetris experience. This project reimagines traditional gameplay by introducing new mechanics, visual customization options, and player-focused features that elevate the timeless puzzle game.
 
 ---
 
-## Upcoming Features ✨
+**Tetris BOOM** is a fully functional Tetris game developed as part of the **ASE 420** course team project. While it preserves the core gameplay of traditional Tetris, it expands upon it with new modes, dynamic mechanics, and updated user experience elements.
 
-- 🔄 **Game Switch**  
-  Additional game modes that switch dynamically as you play  
+This repository includes all assets, documentation, and resources necessary to run, study, and enhance the game.
 
-- 🖱️ **Drag & Drop Features**  
-  Enhanced interaction for piece control  
+---
 
-- 🎨 **UI Themes**  
-  Customize the game look with multiple visual themes  
+## ✨ Key Features
 
-- 👤 **Leaderboard with Profiles**  
-  User accounts with score history and rankings  
+- 🔄 **Dynamic Game Mode Switching**
+  Experience evolving gameplay as special modes activate during play, introducing new challenges and fresh mechanics.
+
+- 💥 **Block Blast Mode**
+  A pre-implemented and integrated game mode offering explosive gameplay twists to keep the experience exciting.
+
+- 🎨 **Customizable UI Themes**
+  Choose from multiple visual themes to personalize the game's appearance and match your preferred aesthetic.  
+
+- 👤 **Leaderboard & Player Profiles** 
+  Players can create accounts, track performance, and compete on the leaderboard with recorded scores and rankings. 
 
 ---
 
 ## Contributions 🤝
 
-💡 Contributions, suggestions, and improvements are always welcome!  
+Contributions and suggestions are always welcome! Developers are especially encouraged to propose and implement new game modes that expand gameplay variety and push creative boundaries. 
 
-- Fork the repository  
-- Open an issue  
-- Submit pull requests  
+- Fork the repository
+- Open an issue to report bugs or request features
+- Submit a pull request with your improvements
+
+We encourage collaboration and feedback to help improve the project.
 
 ---
 
-## Team Schedule 🗓️
+## 🕹️ How to Play
 
-**Cleyton**  
-- Mon & Wed → 8am–4pm  
-- Tue & Thu → 8am–2:30pm  
-- Fri → After 3pm  
+To start playing Tetris BOOM, follow the steps below:
 
-**Denver**  
-- Sunday → 7am–9am  
+- Run the RUNME.py file. This will initialize the game environment and launch the game window.
+- After running it once, an executable version of the game is created.
+- Navigate to "C:/Users/<your username>/dist/" and run the generated .exe file to play without using Python.
