@@ -38,6 +38,15 @@ class BaseRenderer:
     def set_theme(self, dark_mode: bool):
         self.dark_mode = dark_mode
         self._load_theme()
+
+    def _get_bomb_color(self):
+        """
+        Returns the current flash color for bomb blocks (red or white).
+        """
+        from game.data import RED, WHITE, BOMB_FLASH_RATE_MS
+        flash_rate = BOMB_FLASH_RATE_MS
+        time_ms = pygame.time.get_ticks()
+        return RED if (time_ms // flash_rate) % 2 == 0 else WHITE
     
     def _draw_background(self):
         """

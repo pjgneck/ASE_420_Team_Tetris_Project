@@ -1,6 +1,7 @@
 import random
 from game.block import Block
-from game.data import SHAPES
+from game.data import BOMB_CHANCE, SHAPES
+
 
 class BlockFactory:
     def create_block(self, x: int = 3, y: int = 0) -> Block:
@@ -14,4 +15,8 @@ class BlockFactory:
         block = Block(x, y)
         num_rotations = len(SHAPES[block.shape])
         block.rotate(random.randint(0, num_rotations - 1))
+        
+        if random.random() < BOMB_CHANCE:
+            block.is_bomb = True
+        
         return block

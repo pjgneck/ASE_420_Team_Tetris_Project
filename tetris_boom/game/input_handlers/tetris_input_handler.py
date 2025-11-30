@@ -44,12 +44,14 @@ class TetrisInputHandler(BaseInputHandler):
                 while self.is_valid(block):
                     block.move(0, 1)
                 block.move(0, -1)
-                self.freeze_block(block)
-
-                self.state.current_block = factory.create_block()
-
-                if not self.is_valid(self.state.current_block):
-                    self.tetris_mode._handle_game_over()
+                
+                if block.is_bomb:
+                    self.tetris_mode._lock_block()
+                else:
+                    self.freeze_block(block)
+                    self.state.current_block = factory.create_block()
+                    if not self.is_valid(self.state.current_block):
+                        self.tetris_mode._handle_game_over()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_DOWN:

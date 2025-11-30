@@ -1,6 +1,6 @@
 import pygame
 from game.renderers.base_renderer import BaseRenderer
-from game.data import WHITE, BLOCK_SIZE, DARK_BLOCK_OUTLINE, DARK_BLOCK_COLORS, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
+from game.data import WHITE, RED, BLOCK_SIZE, DARK_BLOCK_OUTLINE, DARK_BLOCK_COLORS, LIGHT_BLOCK_COLORS, LIGHT_BLOCK_OUTLINE
 from game.modes.base_mode import GameMode
 
 class TetrisRenderer(BaseRenderer):
@@ -33,15 +33,19 @@ class TetrisRenderer(BaseRenderer):
 
             x = current_block.x + c
             y = current_block.y + r
-            color = current_block.get_color(colors)
+            
+            if current_block.is_bomb:
+                color = self._get_bomb_color()
+            else:
+                color = current_block.get_color(colors)
 
-            pygame.draw.rect(
-                self.screen,
-                color,
-                [
-                    self.offset_x + x * BLOCK_SIZE + 1,
-                    self.offset_y + y * BLOCK_SIZE + 1,
-                    BLOCK_SIZE - 2,
-                    BLOCK_SIZE - 2
-                ]
+            rect = pygame.Rect(
+                self.offset_x + x * BLOCK_SIZE + 1,
+                self.offset_y + y * BLOCK_SIZE + 1,
+                BLOCK_SIZE - 2,
+                BLOCK_SIZE - 2
             )
+            pygame.draw.rect(self.screen, color, rect)
+            
+            if current_block.is_bomb:
+                pygame.draw.rect(self.screen, RED, rect, 3)

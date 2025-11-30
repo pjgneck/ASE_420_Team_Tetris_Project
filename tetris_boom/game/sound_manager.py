@@ -29,6 +29,7 @@ class SoundManager:
             "place_block": load("place_block"),
             "line_clear_1": load("line_clear_1"),
             "line_clear_2": load("line_clear_2"),
+            "bomb": load("bomb"),
             "switch_modes": load("switch_modes"),
             "highscore": load("highscore"),
             "easter_egg": load("easter_egg"),
